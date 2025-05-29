@@ -1,0 +1,6 @@
+name: "IgnisMC"
+version: '1.0'
+main: me.voxelsquid.ignis.Ignis
+api-version: '1.18'
+
+depend: [Bifrost]
