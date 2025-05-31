@@ -1,6 +1,7 @@
-name: "IgnisMC"
+name: "Anima"
 version: '1.0'
-main: me.voxelsquid.ignis.Ignis
-api-version: '1.18'
+main: me.voxelsquid.anima.Anima
+api-version: 1.18
+load: STARTUP
 
 depend: [Bifrost]
