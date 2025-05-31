@@ -33,8 +33,8 @@ import kotlin.random.Random
 
 class HumanoidManager: Listener {
 
-    val dialogueManager:    DialogueManager       = DialogueManager()
-    val movementController: me.voxelsquid.psyche.HumanoidController = me.voxelsquid.psyche.HumanoidController(plugin)
+    val dialogueManager:    DialogueManager                         = DialogueManager()
+    val movementController: me.voxelsquid.psyche.HumanoidController = me.voxelsquid.psyche.HumanoidController(plugin, plugin.allowedWorlds, true)
 
     init {
         this.generateGenericReactionMessages()

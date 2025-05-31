@@ -4,4 +4,4 @@ main: me.voxelsquid.anima.Anima
 api-version: 1.18
 load: STARTUP
 
-depend: [Bifrost]
+depend: [Bifrost, packetevents]

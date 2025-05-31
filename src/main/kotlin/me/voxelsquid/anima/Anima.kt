@@ -1,5 +1,6 @@
 package me.voxelsquid.anima
 
+import com.github.retrooper.packetevents.PacketEvents
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import me.voxelsquid.bifrost.Bifrost
@@ -28,6 +29,7 @@ class Anima : JavaPlugin(), Listener {
     private fun onWorldLoad(event: WorldLoadEvent) {
         if (controller.allowedWorlds.contains(event.world.name)) {
             this.allowedWorlds.add(event.world)
+            logger.info("loaded world: ${event.world.name}")
         }
     }
 
@@ -44,12 +46,13 @@ class Anima : JavaPlugin(), Listener {
         if (!controller.isOk())
             return
 
+        server.pluginManager.registerEvents(this, this)
+        logger.info("Anima is loaded.")
+
         controller.setupCommands()
         configManager   = ConfigManager()
         humanoidManager = HumanoidManager()
         questManager    = QuestManager()
-
-        server.pluginManager.registerEvents(this, this)
     }
 
     val gson: Gson = GsonBuilder().setPrettyPrinting().create()
