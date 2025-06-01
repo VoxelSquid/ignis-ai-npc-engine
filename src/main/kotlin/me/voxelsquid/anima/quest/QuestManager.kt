@@ -8,7 +8,6 @@ import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.event.MerchantTradeEvent
 import me.voxelsquid.anima.event.PlayerAcceptQuestEvent
 import me.voxelsquid.anima.event.QuestInvalidationEvent
-import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.talk
 import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addQuest
@@ -17,6 +16,7 @@ import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.isFr
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.removeQuest
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
+import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.talk
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.actualQuests
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.experienceEarnedByQuests
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.questTracker

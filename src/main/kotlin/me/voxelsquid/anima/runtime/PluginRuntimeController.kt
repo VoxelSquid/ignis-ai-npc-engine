@@ -3,6 +3,7 @@ package me.voxelsquid.anima.runtime
 import me.voxelsquid.anima.Anima.Companion.ignisInstance
 import me.voxelsquid.anima.command.CommandController
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
+import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.DialogueFormat
 
 class PluginRuntimeController {
 
@@ -12,6 +13,7 @@ class PluginRuntimeController {
     val setting       = ConfigurationAccessor(path = "core.setting", defaultValue = "Fantasy", comments = mutableListOf("The setting affects the overall atmosphere of the generated content.", "The default is Fantasy, but you can use anything (or describe your own setting in detail).")).get()
     val swearing      = ConfigurationAccessor(path = "core.swearing", defaultValue = true, comments = mutableListOf("Some personality types will swear in their phrases. You may not like this, so I've added the option to disable it.")).get()
     val messagePrefix = ConfigurationAccessor(path = "text-formatting.chat.message-prefix", defaultValue = "#ff5a02🔥 &8| &7", comments = mutableListOf("The prefix of messages sent by the plugin.")).get()
+    val format        = ConfigurationAccessor(path = "core.default-dialogue-format", defaultValue = DialogueFormat.IMMERSIVE, comments = mutableListOf("The standard format of villagers' dialogs for every player on the server.", "IMMERSIVE: the message from the villager will be received in a cOoL dIaLoGuE wInDoW.", "CHAT: the message from the villager will be received via chat, classic.", "BOTH: well... there's no need to explain, I hope?..")).get()
 
     val personalityGenerationPeriod = ConfigurationAccessor(path = "core.generation.personality.period", defaultValue = 100L).get()
 

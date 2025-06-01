@@ -36,7 +36,7 @@ class MemoryManager {
         val plugin    = ignisInstance
         val memoryKey = NamespacedKey(ignisInstance, "Memory")
 
-        fun Villager.getMemory() : Memory {
+        fun Villager.getEmotionalMemory() : Memory {
             return this.persistentDataContainer.get(memoryKey, PersistentDataType.STRING)?.let {
                 Memory.fromJson(it)
             } ?: Memory().also {

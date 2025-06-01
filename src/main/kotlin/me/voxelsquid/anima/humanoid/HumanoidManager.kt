@@ -14,8 +14,11 @@ import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.humanoid.HumanoidNamespace.spawnerKey
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager
+import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager
 import me.voxelsquid.anima.quest.base.Quest.QuestData
 import me.voxelsquid.anima.utility.InventorySerializer
+import me.voxelsquid.psyche.HumanoidController
+import me.voxelsquid.psyche.HumanoidController.Configuration
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
@@ -33,37 +36,12 @@ import kotlin.random.Random
 
 class HumanoidManager: Listener {
 
-    val dialogueManager:    DialogueManager                         = DialogueManager()
-    val movementController: me.voxelsquid.psyche.HumanoidController = me.voxelsquid.psyche.HumanoidController(plugin, plugin.allowedWorlds, true)
+    val movementController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
+    val dialogueManager = DialogueManager()
+    val interactionManager     = InteractionManager()
 
     init {
-        this.generateGenericReactionMessages()
         plugin.server.pluginManager.registerEvents(this, plugin)
-    }
-
-    lateinit var genericReactionMessages: GenericReactionMessages
-    data class GenericReactionMessages(val sleepInterruptionPhrases: MutableList<String>,
-                                       val damagePhrases: MutableList<String>,
-                                       val joblessPhrases: MutableList<String>,
-                                       val noItemsToTradePhrases: MutableList<String>,
-                                       val noQuestPhrases: MutableList<String>)
-
-    private fun generateGenericReactionMessages() {
-        plugin.bifrost.client.sendRequest(
-            prompt = "Your task is to generate generic NPC reaction phrases in ${plugin.controller.setting} setting and put it in JSON with specified keys: " +
-                    "‘sleepInterruptionPhrases’ (array of 10 strings; [phrases that NPC says when a player disrupts their sleep]), " +
-                    "‘damagePhrases’ (array of 10 strings; [phrases that NPC says when attacked by a player]), " +
-                    "‘joblessPhrases’ (array of 10 strings; [phrases that NPC says when a player suggests trading, but NPC doesn't have any job]), " +
-                    "‘noItemsToTradePhrases’ (array of 10 strings; [phrases that NPC says when a player suggests trading, but NPC doesn't have any items to trade]), " +
-                    "‘noQuestPhrases’ (array of 10 strings; [phrases that NPC says when a player asks NPC about job, but NPC doesn't have any quests for the player]).",
-            responseType = GenericReactionMessages::class,
-            onSuccess = { genericReactionMessages ->
-                this.genericReactionMessages = genericReactionMessages
-            },
-            onFailure = { error ->
-                println("Error during generic reaction messages generation! (${error.message})")
-            }
-        )
     }
 
     @EventHandler
@@ -82,7 +60,8 @@ class HumanoidManager: Listener {
     private fun onDamage(event: EntityDamageByEntityEvent) {
         (event.damager as? Player)?.let { player ->
             if (event.entity is Villager) movementController.entityProvider.asHumanoid(event.entity as LivingEntity).let { humanoid ->
-                player.sendMessage("Gender of this humanoid is ${humanoid.gender}.")
+                player.sendMessage("Hey! I'm talking to you!")
+                humanoid.talkingPlayer = player
             }
         }
     }

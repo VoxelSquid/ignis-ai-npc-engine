@@ -11,6 +11,5 @@ object HumanoidNamespace {
     val hungerKey       = NamespacedKey(ignisInstance, "Hunger")
     val settlementKey   = NamespacedKey(ignisInstance, "Settlement")
     val inventoryKey    = NamespacedKey(ignisInstance, "Inventory")
-    val memoryKey       = NamespacedKey(ignisInstance, "Memory")
     val spawnerKey      = NamespacedKey(ignisInstance, "SpawnerSpawned")
 }

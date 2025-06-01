@@ -2,7 +2,6 @@ package me.voxelsquid.anima.quest.base
 
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityType
-import me.voxelsquid.psyche.personality.PersonalityType
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
 import me.voxelsquid.anima.Anima.Companion.ignisInstance
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.professionLevelName
@@ -13,6 +12,7 @@ import me.voxelsquid.anima.utility.InventorySerializer.Companion.fromBase64
 import me.voxelsquid.anima.utility.InventorySerializer.Companion.toBase64
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.calculatePrice
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.getMaterialPrice
+import me.voxelsquid.psyche.data.PersonalityType
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -108,8 +108,9 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
 
         // ID квестов помогает отслеживать актуальные квесты и те, которые уже не имеют смысла.
         val questCountKey = NamespacedKey(plugin, "TotalQuestCount")
-        var questCount = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(questCountKey, PersistentDataType.LONG) ?: 0
+
         fun nextQuestID() : Long {
+            var questCount = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(questCountKey, PersistentDataType.LONG) ?: 0
             questCount += 1
             Bukkit.getWorlds()[0]!!.persistentDataContainer.set(questCountKey, PersistentDataType.LONG, questCount)
             return questCount

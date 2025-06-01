@@ -27,6 +27,7 @@ class ConfigManager(private val dataFolder: File = plugin.dataFolder) {
     // Перевод плагина с помощью ИИ.
     private fun loadLanguage() {
         val languageFile = File(plugin.dataFolder, "language.yml")
+        this.language = YamlConfiguration.loadConfiguration(languageFile)
         if (plugin.controller.translation) {
             plugin.bifrost.client.translate(languageFile) { translation ->
                 plugin.logger.info("Ignis uses generative translation! The plugin has been automatically translated.")

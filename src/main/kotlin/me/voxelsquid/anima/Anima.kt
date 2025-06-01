@@ -13,6 +13,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.world.WorldLoadEvent
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
 class Anima : JavaPlugin(), Listener {
@@ -62,6 +63,7 @@ class Anima : JavaPlugin(), Listener {
     }
 
     companion object {
+
         lateinit var ignisInstance: Anima
 
         fun Player.sendFormattedMessage(message: String) {
