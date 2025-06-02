@@ -37,7 +37,12 @@ class HumanoidTradeHandler : Listener {
 
             if (rewardItem.type != Material.AIR) {
                 val recipe = villager.recipes.find { it.result.isSimilar(rewardItem) && it.ingredients[0].isSimilar(firstTrade) } ?: throw NullPointerException("Null recipe on successful trade.")
-                Bukkit.getServer().pluginManager.callEvent(MerchantTradeEvent(villager, player, recipe))
+
+                // Отправляем на следующем тике, чтобы прошёл трейд.
+                Bukkit.getServer().scheduler.runTask(plugin) { _ ->
+                    Bukkit.getServer().pluginManager.callEvent(MerchantTradeEvent(villager, player, recipe))
+                }
+
             }
         }
     }

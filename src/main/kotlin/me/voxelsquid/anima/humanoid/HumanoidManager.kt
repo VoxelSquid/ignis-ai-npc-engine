@@ -33,12 +33,13 @@ class HumanoidManager: Listener {
     val movementController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
     val dialogueManager    = DialogueManager()
     val interactionManager = InteractionManager()
+    val tradeHandler       = HumanoidTradeHandler()
 
     private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()
     private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
     private val workIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.work-tick-interval", defaultValue = 2400L, comments = mutableListOf("Each iteration ALL villagers in the entire world will produce items to trade.")).get()
 
-
+    // TODO: Просто запусти плагин и сразу поймёшь над чем надо работать. Лол.
     init {
         plugin.server.pluginManager.registerEvents(this, plugin)
         this.startTickers()

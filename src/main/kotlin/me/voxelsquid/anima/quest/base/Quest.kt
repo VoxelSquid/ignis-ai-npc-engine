@@ -57,8 +57,6 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
     fun generate() {
 
         plugin.bifrost.client.sendRequest(this.prepareBasicGenerationPrompt(), QuestData::class, onSuccess = { response ->
-            plugin.logger.info("Quest generation tick. Quest has been generated successfully!")
-            plugin.logger.info(response.toString())
             this.questData.questName = response.questNames.random().replace("*", "").replace("_", "")
             this.questData.extraShortTaskDescription = response.extraShortTaskDescription.replace("*", "").replace("_", "")
             this.questData.shortRequiredQuestItemDescription = response.shortRequiredQuestItemDescription.replace("*", "").replace("_", "")
@@ -70,6 +68,8 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
             }
             villager.addQuest(questData)
             actualQuests.add(questData.questID)
+            plugin.logger.info("Quest generation tick. Quest has been generated successfully!")
+            plugin.logger.info(this.questData.toString())
         }, onFailure = {
             plugin.logger.warning("Error during quest generation.")
         })
