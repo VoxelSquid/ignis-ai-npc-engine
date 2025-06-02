@@ -48,7 +48,13 @@ enum class GatheringQuestType(private val promptConfigPath: String, val randomQu
         ItemStack(Material.POTION).apply {
             val randomPotionType = allowedPotionTypes.random()
             itemMeta = (this.itemMeta as PotionMeta).apply {
-                this.basePotionData = PotionData(XPotion.of(randomPotionType).get().potionType ?: throw NullPointerException("Non existent potion: $randomPotionType!"))
+                try {
+                    XPotion.of(randomPotionType).get().potionType?.let {
+                        this.basePotionData = PotionData(it)
+                    }
+                } catch (ignored: Exception) {
+                    this.basePotionData = PotionData(XPotion.REGENERATION.potionType!!)
+                }
             }
         }
     }),
