@@ -1,7 +1,7 @@
 package me.voxelsquid.anima.humanoid
 
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.event.MerchantTradeEvent
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addItemToQuillInventory
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests

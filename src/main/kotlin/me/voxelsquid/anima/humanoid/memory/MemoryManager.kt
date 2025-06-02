@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.humanoid.memory
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Villager
 import org.bukkit.persistence.PersistentDataType

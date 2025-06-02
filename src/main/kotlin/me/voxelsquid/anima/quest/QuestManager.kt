@@ -2,8 +2,8 @@ package me.voxelsquid.anima.quest
 
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
-import me.voxelsquid.anima.Anima.Companion.sendFormattedMessage
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.sendFormattedMessage
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.event.MerchantTradeEvent
 import me.voxelsquid.anima.event.PlayerAcceptQuestEvent
@@ -11,7 +11,6 @@ import me.voxelsquid.anima.event.QuestInvalidationEvent
 import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addQuest
-import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.getHumanoidController
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.isFromSpawner
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.removeQuest
@@ -60,13 +59,32 @@ class QuestManager : Listener {
 
     // В этом тике мы выбираем жителя и создаём для него квест. Вопрос лишь в том, есть ли необходимость генерировать квест сразу. Думаю, да.
     fun tick() {
-        val world = this.selectRandomWorld() ?: return
-        val villager = this.selectRandomVillager(world) ?: return
-        if (villager.getHumanoidController() == null) return
-        if (villager.getPersonalityData() == null) return
-        if (villager.profession == Villager.Profession.NONE) return
-        if (villager.quests.size > 1 + villager.villagerLevel) return
+        val world = this.selectRandomWorld() ?: run {
+            plugin.logger.info("Quest generation tick. No world.")
+            return
+        }
 
+        val villager = this.selectRandomVillager(world) ?: run {
+            plugin.logger.info("Quest generation tick. Can't find a villager.")
+            return
+        }
+
+        if (villager.getPersonalityData() == null) run {
+            plugin.logger.info("Quest generation tick. Villager found, but it has no personality.")
+            return
+        }
+
+        if (villager.profession == Villager.Profession.NONE) run {
+            plugin.logger.info("Quest generation tick. Villager found, but it has no profession.")
+            return
+        }
+
+        if (villager.quests.size > 1 + villager.villagerLevel) run {
+            plugin.logger.info("Quest generation tick. Villager found, but it has too much quests already.")
+            return
+        }
+
+        plugin.logger.info("Quest generation tick. Preparing a new quest...")
         val questType = Quest.Type.entries.random()
         val quest = when (questType) {
             Quest.Type.GATHERING -> GatheringQuest(villager)
@@ -84,7 +102,7 @@ class QuestManager : Listener {
         }
 
         cachedQuests.add(quest)
-        //quest.generate()
+        quest.generate()
     }
 
     @EventHandler

@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.quest
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.event.QuestInvalidationEvent
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addQuest

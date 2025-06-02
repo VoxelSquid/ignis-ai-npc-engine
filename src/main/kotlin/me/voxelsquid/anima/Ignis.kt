@@ -1,6 +1,5 @@
 package me.voxelsquid.anima
 
-import com.github.retrooper.packetevents.PacketEvents
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import me.voxelsquid.bifrost.Bifrost
@@ -13,10 +12,9 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.world.WorldLoadEvent
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
-class Anima : JavaPlugin(), Listener {
+class Ignis : JavaPlugin(), Listener {
 
     lateinit var controller:      PluginRuntimeController
     lateinit var bifrost:         Bifrost
@@ -28,10 +26,8 @@ class Anima : JavaPlugin(), Listener {
 
     @EventHandler
     private fun onWorldLoad(event: WorldLoadEvent) {
-        if (controller.allowedWorlds.contains(event.world.name)) {
+        if (controller.allowedWorlds.contains(event.world.name))
             this.allowedWorlds.add(event.world)
-            logger.info("loaded world: ${event.world.name}")
-        }
     }
 
     override fun onEnable() {
@@ -48,7 +44,6 @@ class Anima : JavaPlugin(), Listener {
             return
 
         server.pluginManager.registerEvents(this, this)
-        logger.info("Anima is loaded.")
 
         controller.setupCommands()
         configManager   = ConfigManager()
@@ -64,7 +59,7 @@ class Anima : JavaPlugin(), Listener {
 
     companion object {
 
-        lateinit var ignisInstance: Anima
+        lateinit var ignisInstance: Ignis
 
         fun Player.sendFormattedMessage(message: String) {
             this.sendMessage(ignisInstance.controller.messagePrefix + message)

@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.humanoid.dialogue.menu
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.event.PlayerAcceptQuestEvent
 import me.voxelsquid.anima.gameplay.settlement.Settlement

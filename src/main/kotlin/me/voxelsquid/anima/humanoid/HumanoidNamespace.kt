@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.humanoid
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import org.bukkit.NamespacedKey
 
 object HumanoidNamespace {

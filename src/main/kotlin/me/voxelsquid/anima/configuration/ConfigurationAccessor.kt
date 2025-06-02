@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.configuration
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.utility.HexColorLib.color
 import org.bukkit.ChatColor
 import org.bukkit.configuration.file.YamlConfiguration

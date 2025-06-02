@@ -1,8 +1,8 @@
 package me.voxelsquid.anima.settlement
 
 import com.google.gson.reflect.TypeToken
-import me.voxelsquid.anima.Anima
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
@@ -15,7 +15,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.world.ChunkLoadEvent
 import org.bukkit.persistence.PersistentDataType
 
-class SettlementManager(val plugin: Anima): Listener {
+class SettlementManager(val plugin: Ignis): Listener {
 
     private val trackPlayerSettlementEntry = ConfigurationAccessor(path = "settlement.entry.track", defaultValue = true, comments = mutableListOf("Should the plugin send a message to the player that they have entered/left a settlement?")).get()
     private val settlementTitleNameColor   = ConfigurationAccessor(path = "settlement.title.color", defaultValue = "&6", comments = mutableListOf("The color of the settlement name in the title, when entering and exiting a settlement.")).get()

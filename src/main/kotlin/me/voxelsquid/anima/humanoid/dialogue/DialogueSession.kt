@@ -1,8 +1,8 @@
 package me.voxelsquid.anima.humanoid.dialogue
 
 import com.cryptomorin.xseries.XSound
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
-import me.voxelsquid.anima.Anima.Companion.sendFormattedMessage
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.sendFormattedMessage
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.professionLevelName
@@ -14,13 +14,11 @@ import me.voxelsquid.anima.settlement.ReputationManager.Companion.addReputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.getPlayerReputationStatus
 import me.voxelsquid.anima.utility.Daytime
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.calculatePrice
-import me.voxelsquid.psyche.HumanoidController
 import me.voxelsquid.psyche.HumanoidController.Companion.bifrost
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityType
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
-import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager

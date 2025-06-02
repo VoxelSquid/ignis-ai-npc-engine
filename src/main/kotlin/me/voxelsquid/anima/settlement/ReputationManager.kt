@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.settlement
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.isFromSpawner

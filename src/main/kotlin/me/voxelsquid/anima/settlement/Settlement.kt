@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.gameplay.settlement
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager

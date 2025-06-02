@@ -1,6 +1,6 @@
-name: "Anima"
+name: "Ignis"
 version: '1.0'
-main: me.voxelsquid.anima.Anima
+main: me.voxelsquid.anima.Ignis
 api-version: 1.18
 load: STARTUP
 

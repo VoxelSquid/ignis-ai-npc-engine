@@ -3,10 +3,15 @@ package me.voxelsquid.anima.quest.base
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityType
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
+import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addQuest
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.professionLevelName
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
+import me.voxelsquid.anima.quest.ProgressTracker.Companion.actualQuests
+import me.voxelsquid.anima.quest.QuestManager
+import me.voxelsquid.anima.quest.QuestManager.Companion
 import me.voxelsquid.anima.quest.gathering.GatheringQuestType
+import me.voxelsquid.anima.quest.hunting.HuntingQuest
 import me.voxelsquid.anima.runtime.DatabaseManager
 import me.voxelsquid.anima.utility.InventorySerializer.Companion.fromBase64
 import me.voxelsquid.anima.utility.InventorySerializer.Companion.toBase64
@@ -49,26 +54,26 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
         } else ""
     )
 
-    /*fun generate() {
-        plugin.geminiProvider.sendGenerationRequest(this.prepareBasicGenerationPrompt()) { cleanedQuestJson ->
-            val generatedData = plugin.gson.fromJson(cleanedQuestJson, QuestData::class.java)
-            this.questData.questName = generatedData.questNames.random().replace("*", "").replace("_", "")
-            this.questData.extraShortTaskDescription = generatedData.extraShortTaskDescription.replace("*", "").replace("_", "")
-            this.questData.shortRequiredQuestItemDescription = generatedData.shortRequiredQuestItemDescription.replace("*", "").replace("_", "")
-            this.questData.reputationBasedQuestDescriptions.addAll(generatedData.reputationBasedQuestDescriptions)
-            this.questData.reputationBasedQuestFinishingDialogues.addAll(generatedData.reputationBasedQuestFinishingDialogues)
+    fun generate() {
 
+        plugin.bifrost.client.sendRequest(this.prepareBasicGenerationPrompt(), QuestData::class, onSuccess = { response ->
+            plugin.logger.info("Quest generation tick. Quest has been generated successfully!")
+            plugin.logger.info(response.toString())
+            this.questData.questName = response.questNames.random().replace("*", "").replace("_", "")
+            this.questData.extraShortTaskDescription = response.extraShortTaskDescription.replace("*", "").replace("_", "")
+            this.questData.shortRequiredQuestItemDescription = response.shortRequiredQuestItemDescription.replace("*", "").replace("_", "")
+            this.questData.reputationBasedQuestDescriptions.addAll(response.reputationBasedQuestDescriptions)
+            this.questData.reputationBasedQuestFinishingDialogues.addAll(response.reputationBasedQuestFinishingDialogues)
             /* Модифицирование лора необходимо только для охотничьего квеста. */
             if (this is HuntingQuest) {
                 this.questData.requiredItem = toBase64(requiredItem.apply { this.itemMeta = itemMeta.apply { this!!.lore = listOf("§7${questData.shortRequiredQuestItemDescription}") } })
             }
-
             villager.addQuest(questData)
             actualQuests.add(questData.questID)
-        }
+        }, onFailure = {
+            plugin.logger.warning("Error during quest generation.")
+        })
     }
-
-     */
 
     private fun prepareBasicGenerationPrompt() : String {
         val prompt = plugin.configManager.prompts.getString("basic-task-description") ?: throw NullPointerException()

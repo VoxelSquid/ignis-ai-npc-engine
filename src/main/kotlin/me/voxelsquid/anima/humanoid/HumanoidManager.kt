@@ -1,47 +1,68 @@
 package me.voxelsquid.anima.humanoid
 
-import com.cryptomorin.xseries.XSound
-import com.github.retrooper.packetevents.protocol.player.TextureProperty
 import com.github.retrooper.packetevents.protocol.player.UserProfile
 import com.google.common.reflect.TypeToken
 import com.google.gson.JsonSyntaxException
-import me.voxelsquid.psyche.data.Gender
-import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
-import me.voxelsquid.psyche.race.RaceManager
-import me.voxelsquid.psyche.race.RaceManager.Companion.race
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
+import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.gameplay.settlement.Settlement
-import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.humanoid.HumanoidNamespace.spawnerKey
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager
 import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager
 import me.voxelsquid.anima.quest.base.Quest.QuestData
+import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.utility.InventorySerializer
 import me.voxelsquid.psyche.HumanoidController
 import me.voxelsquid.psyche.HumanoidController.Configuration
+import me.voxelsquid.psyche.race.RaceManager
+import me.voxelsquid.psyche.race.RaceManager.Companion.race
 import org.bukkit.Bukkit
-import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.CreatureSpawnEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import kotlin.random.Random
 
 class HumanoidManager: Listener {
 
     val movementController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
-    val dialogueManager = DialogueManager()
-    val interactionManager     = InteractionManager()
+    val dialogueManager    = DialogueManager()
+    val interactionManager = InteractionManager()
+
+    private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()
+    private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
+    private val workIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.work-tick-interval", defaultValue = 2400L, comments = mutableListOf("Each iteration ALL villagers in the entire world will produce items to trade.")).get()
+
 
     init {
         plugin.server.pluginManager.registerEvents(this, plugin)
+        this.startTickers()
+    }
+
+    private fun startTickers() {
+        plugin.logger.info(questIntervalTicks.toString())
+        plugin.server.scheduler.runTaskTimer(plugin, { _ -> plugin.questManager.tick() }, 0, questIntervalTicks)
+
+        /*
+
+        plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
+        plugin.server.scheduler.runTaskTimer(plugin, { _ ->
+            plugin.allowedWorlds.flatMap { it.entities.filterIsInstance<Villager>() }.shuffled().forEachIndexed { index, villager ->
+                if (villager.pose != Pose.SLEEPING) {
+                    villager.hunger = (villager.hunger - 2.5).coerceAtLeast(0.0)
+                    if (villager.hunger <= 17.5) {
+                        plugin.server.scheduler.runTaskLater(plugin, { _ -> villager.eat() }, 5 + (index * 2L).coerceAtMost(40) + Random.nextInt(250))
+                    }
+                }
+            }
+        }, 0, foodIntervalTicks)
+
+         */
     }
 
     @EventHandler
@@ -54,16 +75,6 @@ class HumanoidManager: Listener {
     @EventHandler
     private fun onVillagerPickupItem(event: EntityPickupItemEvent) {
         (event.entity as? Villager)?.addItemToQuillInventory(event.item.itemStack)
-    }
-
-    @EventHandler
-    private fun onDamage(event: EntityDamageByEntityEvent) {
-        (event.damager as? Player)?.let { player ->
-            if (event.entity is Villager) movementController.entityProvider.asHumanoid(event.entity as LivingEntity).let { humanoid ->
-                player.sendMessage("Hey! I'm talking to you!")
-                humanoid.talkingPlayer = player
-            }
-        }
     }
 
     enum class InventoryWealth(val minWealth: Int, val maxWealth: Int) {
@@ -107,32 +118,6 @@ class HumanoidManager: Listener {
     companion object HumanoidEntityExtension {
 
         val plugin = ignisInstance
-        val humanoidRegistry = hashMapOf<LivingEntity, HumanoidController>()
-        val HUMANOID_VILLAGERS_ENABLED = plugin.server.pluginManager.isPluginEnabled("Characters")
-
-        fun LivingEntity.getHumanoidController() = humanoidRegistry[this]
-
-        fun Villager.getVoiceSound(): Sound =
-            persistentDataContainer.get(HumanoidNamespace.voiceKey, PersistentDataType.STRING)?.let {
-                XSound.of(it).get().get()
-            } ?: race.let {
-                val voices = if (gender == Gender.MALE) it.maleVoices else it.femaleVoices
-                voices.random().sound.also { sound -> persistentDataContainer.set(HumanoidNamespace.voiceKey, PersistentDataType.STRING, sound.toString()) }.get() ?: throw NullPointerException("Error during voice sound loading!")
-            }
-
-        fun Villager.getVoicePitch() = persistentDataContainer.get(HumanoidNamespace.pitchKey, PersistentDataType.FLOAT) ?: race.let {
-            Random.nextDouble(it.maleVoices.random().min, it.maleVoices.random().max).toFloat().also { pitch ->
-                persistentDataContainer.set(HumanoidNamespace.pitchKey, PersistentDataType.FLOAT, pitch)
-            }
-        }
-
-        fun Villager.skin() = race.let { r ->
-            persistentDataContainer.get(HumanoidNamespace.skinKey, PersistentDataType.STRING)?.let { skin ->
-                val (value, signature) = skin.split(":"); TextureProperty("textures", value, signature)
-            } ?: (if (gender == Gender.MALE) r.maleSkins else r.femaleSkins).random().also {
-                persistentDataContainer.set(HumanoidNamespace.skinKey, PersistentDataType.STRING, "${it.value}:${it.signature}")
-            }
-        }
 
         fun Villager.addItemToQuillInventory(vararg items: ItemStack) = subInventory.let { inv ->
             items.forEach { it.amount = it.amount.coerceAtMost(it.maxStackSize); inv.addItem(it) }

@@ -1,6 +1,6 @@
 package me.voxelsquid.anima.runtime
 
-import me.voxelsquid.anima.Anima.Companion.ignisInstance
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.command.CommandController
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.DialogueFormat

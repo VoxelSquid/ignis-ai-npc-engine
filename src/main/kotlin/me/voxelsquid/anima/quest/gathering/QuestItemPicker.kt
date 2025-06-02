@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.quest.gathering
 
+import com.cryptomorin.xseries.XMaterial
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.hunger
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.subInventory
@@ -25,7 +26,7 @@ class QuestItemPicker {
             for (line in data) {
                 val (materialName, amount, description) = line.split("~")
                 val (min, max) = amount.split("-")
-                this.add(Triple(Material.valueOf(materialName), min.toInt() to max.toInt(), description))
+                this.add(Triple(XMaterial.valueOf(materialName).get() ?: continue, min.toInt() to max.toInt(), description))
             }
         }
 
@@ -35,12 +36,14 @@ class QuestItemPicker {
 
     fun determineGatheringQuestType(villager: Villager): GatheringQuestType {
 
-        val types = mutableListOf(GatheringQuestType.PROFESSION_ITEM, GatheringQuestType.MUSIC_DISC)
+        val types = mutableListOf(GatheringQuestType.PROFESSION_ITEM, GatheringQuestType.MUSIC_DISC, GatheringQuestType.BOOZE)
 
         // Some quests are profession specific
         when (villager.profession) {
+            Profession.ARMORER -> types += GatheringQuestType.SMITHING_TEMPLATE
             Profession.LIBRARIAN -> { types += GatheringQuestType.ENCHANTED_BOOK; types += GatheringQuestType.TREASURE_HUNT }
             Profession.CARTOGRAPHER -> types += GatheringQuestType.TREASURE_HUNT
+            Profession.CLERIC -> types += GatheringQuestType.FUNGUS_SEARCH
             else -> {}
         }
 
@@ -99,8 +102,7 @@ class QuestItemPicker {
             val items = mutableMapOf<Material, Pair<Int, Int>>()
 
             // Извлекаем и обрабатываем список предметов
-            plugin.configManager.professions.getStringList("villager-item-producing.profession.$profession.item-priority").forEach { line ->
-
+            for (line in plugin.configManager.professions.getStringList("villager-item-producing.profession.$profession.item-priority")) {
                 val (materialName, amountRange) = line.split("~")
                 val (min, max) = amountRange.split("-").map(String::toInt).let { range ->
                     if (range.size == 1) range[0] to range[0] else range[0] to range[1]
@@ -111,7 +113,7 @@ class QuestItemPicker {
                     Material.entries.filter { material: Material -> material.toString().contains(materialName.removePrefix("@")) }.forEach {
                         items[it] = amount
                     }
-                } else items[Material.valueOf(materialName)] = amount
+                } else items[XMaterial.valueOf(materialName).get() ?: continue] = amount
             }
 
             professionItems[profession] = items
