@@ -10,6 +10,7 @@ import me.voxelsquid.anima.humanoid.HumanoidNamespace.spawnerKey
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager
 import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager
 import me.voxelsquid.anima.quest.base.Quest.QuestData
+import me.voxelsquid.anima.settlement.SettlementManager
 import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.utility.InventorySerializer
 import me.voxelsquid.psyche.HumanoidController
@@ -33,6 +34,7 @@ class HumanoidManager: Listener {
     val movementController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
     val dialogueManager    = DialogueManager()
     val interactionManager = InteractionManager()
+    val settlementManager  = SettlementManager()
     val tradeHandler       = HumanoidTradeHandler()
 
     private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()

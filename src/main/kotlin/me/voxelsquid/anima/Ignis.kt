@@ -1,20 +1,20 @@
 package me.voxelsquid.anima
 
-import com.cryptomorin.xseries.XItemStack
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import me.voxelsquid.bifrost.Bifrost
 import me.voxelsquid.anima.configuration.ConfigManager
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.quest.QuestManager
 import me.voxelsquid.anima.runtime.PluginRuntimeController
-import org.bukkit.Material
+import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
+import me.voxelsquid.anima.utility.LocationAdapter
+import me.voxelsquid.bifrost.Bifrost
+import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.world.WorldLoadEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 class Ignis : JavaPlugin(), Listener {
@@ -27,10 +27,19 @@ class Ignis : JavaPlugin(), Listener {
 
     val allowedWorlds: MutableList<World> = mutableListOf()
 
+    /**
+     * TODO
+     *  Не работает ProfessionManager (жители не крафтят шмотки и не торгуют своим говном).
+     *  Не работает подсветка предметов.
+     *  Нет команд. Команды очень важны.
+     *  Нет википедии. Алсо, я решил не переделывать квестген — я просто доработал его.
+     */
+
     @EventHandler
     private fun onWorldLoad(event: WorldLoadEvent) {
-        if (controller.allowedWorlds.contains(event.world.name))
+        if (controller.allowedWorlds.contains(event.world.name)) {
             this.allowedWorlds.add(event.world)
+        }
     }
 
     override fun onEnable() {
@@ -54,7 +63,7 @@ class Ignis : JavaPlugin(), Listener {
         questManager    = QuestManager()
     }
 
-    val gson: Gson = GsonBuilder().setPrettyPrinting().create()
+    val gson: Gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(Location::class.java, LocationAdapter()).create()
 
     init {
         ignisInstance = this
