@@ -6,7 +6,6 @@ import me.voxelsquid.anima.configuration.ConfigManager
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.quest.QuestManager
 import me.voxelsquid.anima.runtime.PluginRuntimeController
-import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.utility.LocationAdapter
 import me.voxelsquid.bifrost.Bifrost
 import org.bukkit.Location
@@ -32,6 +31,7 @@ class Ignis : JavaPlugin(), Listener {
      *  Не работает ProfessionManager (жители не крафтят шмотки и не торгуют своим говном).
      *  Не работает подсветка предметов.
      *  Нет команд. Команды очень важны.
+     *  Когда закончишь со всей хуйнёй, не забудь убрать дебаговые саообщения.
      *  Нет википедии. Алсо, я решил не переделывать квестген — я просто доработал его.
      */
 
@@ -64,6 +64,14 @@ class Ignis : JavaPlugin(), Listener {
     }
 
     val gson: Gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(Location::class.java, LocationAdapter()).create()
+
+    fun isFree(player: Player? = null) : Boolean {
+        val free = false
+        if (free) {
+            player?.sendFormattedMessage("This feature is only available in the premium version of the plugin. Please support the development by purchasing the plugin on Polymart.")
+        }
+        return free
+    }
 
     init {
         ignisInstance = this

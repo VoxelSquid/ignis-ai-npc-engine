@@ -41,7 +41,6 @@ class HumanoidManager: Listener {
     private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
     private val workIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.work-tick-interval", defaultValue = 2400L, comments = mutableListOf("Each iteration ALL villagers in the entire world will produce items to trade.")).get()
 
-    // TODO: Просто запусти плагин и сразу поймёшь над чем надо работать. Лол.
     init {
         plugin.server.pluginManager.registerEvents(this, plugin)
         this.startTickers()

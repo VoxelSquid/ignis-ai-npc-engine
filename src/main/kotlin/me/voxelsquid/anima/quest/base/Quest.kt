@@ -114,6 +114,8 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
 
         // ID квестов помогает отслеживать актуальные квесты и те, которые уже не имеют смысла.
         val questCountKey = NamespacedKey(plugin, "TotalQuestCount")
+        val questCount: Long
+            get() = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(questCountKey, PersistentDataType.LONG) ?: 0
 
         fun nextQuestID() : Long {
             var questCount = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(questCountKey, PersistentDataType.LONG) ?: 0
