@@ -1,6 +1,16 @@
 package me.voxelsquid.anima.quest
 
 import com.cryptomorin.xseries.XItemStack
+import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract
+import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData
+import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes
+import com.github.retrooper.packetevents.protocol.packettype.PacketType
+import com.github.retrooper.packetevents.wrapper.PacketWrapper
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity
+import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
@@ -19,6 +29,7 @@ import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.sett
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.talk
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.actualQuests
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.experienceEarnedByQuests
+import me.voxelsquid.anima.quest.ProgressTracker.Companion.getTrackedQuest
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.questTracker
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.questsCompleted
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.questsFailed
@@ -35,6 +46,7 @@ import me.voxelsquid.anima.utility.InventorySerializer.Companion.fromBase64
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.World
+import org.bukkit.entity.Item
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
@@ -118,6 +130,57 @@ class QuestManager : Listener {
             }
 
         }
+    }
+
+    class ItemGlowHandler : SimplePacketListenerAbstract() {
+
+        init {
+            PacketEvents.getAPI().eventManager.registerListener(this)
+        }
+
+        private fun Player.channel() : Any = PacketEvents.getAPI().playerManager.getChannel(this)
+        private fun Player.sendPacket(packet: PacketWrapper<*>) {
+            PacketEvents.getAPI().protocolManager.sendPacket(this.channel(), packet)
+        }
+
+        override fun onPacketPlaySend(event: PacketPlaySendEvent) {
+
+            val player = event.getPlayer<Player>() ?: return
+            val world = player.world
+
+            // Smart world check.
+            if (!plugin.allowedWorlds.contains(world))
+                return
+
+            when (event.packetType) {
+
+                // To avoid showing the villagers' real nosy model, we cancel this packet until a packet with a fake entity is sent to the player.
+                PacketType.Play.Server.SPAWN_ENTITY -> {
+
+                    val packet = WrapperPlayServerSpawnEntity(event)
+                    val entity = SpigotConversionUtil.getEntityById(world, packet.entityId) ?: return
+
+                    when (entity) {
+
+                        // Smart quest tracking.
+                        is Item -> {
+                            val item = entity.itemStack
+                            player.getTrackedQuest()?.let { (quest, progressBar) ->
+                                if (quest.getRequiredItem().isSimilar(item) && progressBar.progress != 1.0) {
+                                    val glowingData = EntityData(0, EntityDataTypes.BYTE, 0x40.toByte())
+                                    val metadataPacket =
+                                        WrapperPlayServerEntityMetadata(entity.entityId, listOf(glowingData))
+                                    plugin.server.scheduler.runTask(plugin) { _ -> player.sendPacket(metadataPacket) } // Doing things on the next tick is the best fix.
+                                }
+                            }
+                        }
+                    }
+                }
+
+                else -> { /* Divided by zero! */ }
+            }
+        }
+
     }
 
     class MythicMobHandler : Listener {
@@ -302,6 +365,7 @@ class QuestManager : Listener {
         if (plugin.server.pluginManager.isPluginEnabled("MythicMobs")) {
             plugin.server.pluginManager.registerEvents(MythicMobHandler(), plugin)
         }
+        ItemGlowHandler()
     }
 
     companion object {

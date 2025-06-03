@@ -4,16 +4,26 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import me.voxelsquid.anima.configuration.ConfigManager
 import me.voxelsquid.anima.humanoid.HumanoidManager
+import me.voxelsquid.anima.humanoid.dialogue.DialogueManager
+import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.dialogues
+import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager.Companion.openedMenuList
+import me.voxelsquid.anima.humanoid.dialogue.menu.Menu
+import me.voxelsquid.anima.quest.ProgressTracker.Companion.actualQuests
 import me.voxelsquid.anima.quest.QuestManager
 import me.voxelsquid.anima.runtime.PluginRuntimeController
+import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
+import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlementsWorldKey
 import me.voxelsquid.anima.utility.LocationAdapter
 import me.voxelsquid.bifrost.Bifrost
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.NamespacedKey
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.world.WorldLoadEvent
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 
 class Ignis : JavaPlugin(), Listener {
@@ -28,12 +38,8 @@ class Ignis : JavaPlugin(), Listener {
 
     /*
      * TODO
-     *  Не работает ProfessionManager (жители не крафтят шмотки и не торгуют своим говном).
-     *  Не работает подсветка предметов.
      *  Когда закончишь со всей хуйнёй, не забудь убрать дебаговые саообщения.
      *  Нет википедии. Алсо, я решил не переделывать квестген — я просто доработал его.
-     *  Жителям нельзя дарить подарки.
-     *  Необходимо протестить появление жителей болот.
      *  Жители не хавают еду.
      */
 
@@ -42,6 +48,14 @@ class Ignis : JavaPlugin(), Listener {
         if (controller.allowedWorlds.contains(event.world.name)) {
             this.allowedWorlds.add(event.world)
         }
+
+        // First world load. We store a lot of shit in there.
+        if (Bukkit.getWorlds()[0] == event.world) {
+            actualQuests = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY)?.toMutableList() ?: actualQuests.toLongArray().also {
+                Bukkit.getWorlds()[0]!!.persistentDataContainer.set(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY, it)
+            }.toMutableList()
+        }
+
     }
 
     override fun onEnable() {
@@ -63,6 +77,16 @@ class Ignis : JavaPlugin(), Listener {
         configManager   = ConfigManager()
         humanoidManager = HumanoidManager()
         questManager    = QuestManager()
+    }
+
+    override fun onDisable() {
+        dialogues.values.forEach(DialogueManager.DialogueWindow::destroy)
+        openedMenuList.forEach(Menu::destroy)
+        allowedWorlds.forEach { world ->
+            world.persistentDataContainer.set(settlementsWorldKey, PersistentDataType.STRING, gson.toJson(settlements[world]?.map { it.data }))
+        }
+        Bukkit.getWorlds()[0]!!.persistentDataContainer.set(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY, actualQuests.toLongArray())
+        controller.databaseManager.closeConnection()
     }
 
     val gson: Gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(Location::class.java, LocationAdapter()).create()

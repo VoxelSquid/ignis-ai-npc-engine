@@ -55,7 +55,6 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
     )
 
     fun generate() {
-
         plugin.bifrost.client.sendRequest(this.prepareBasicGenerationPrompt(), QuestData::class, onSuccess = { response ->
             this.questData.questName = response.questNames.random().replace("*", "").replace("_", "")
             this.questData.extraShortTaskDescription = response.extraShortTaskDescription.replace("*", "").replace("_", "")
