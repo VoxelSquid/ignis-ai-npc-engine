@@ -51,7 +51,6 @@ class ProfessionManager: Listener {
         plugin.server.scheduler.runTaskTimer(plugin, { _ ->
             uniqueItemProduceQueue.keys.randomOrNull()?.let { villager ->
                 uniqueItemProduceQueue[villager]?.let { uniqueItem ->
-                    plugin.logger.info("Villager of profession ${villager.profession} tries to produce an unique item of type ${uniqueItem.type}!")
                     this.generateUniqueItemDescription(villager, uniqueItem)
                     uniqueItemProduceQueue.remove(villager)
                 }
@@ -109,12 +108,12 @@ class ProfessionManager: Listener {
                     val recipes = Bukkit.getRecipesFor(ItemStack(Material.valueOf(itemToProduce)))
 
                     if (recipes.isEmpty()) {
-                        plugin.logger.info("Uncraftable item in [\"professions.yml\", villager-item-producing.profession.$profession.item-produce]: $itemToProduce!")
                         continue
                     }
 
                     val recipeIngredients = mutableListOf<Material>()
                     val recipe = recipes.random()
+
                     when (recipe) {
 
                         is ShapedRecipe -> (recipe.choiceMap.values.filterIsInstance<MaterialChoice>().forEach { ingredient ->
@@ -128,9 +127,7 @@ class ProfessionManager: Listener {
                         is FurnaceRecipe -> {
                             try {
                                 recipeIngredients.add((recipe.inputChoice as MaterialChoice).itemStack.type)
-                            } catch (exception: ClassCastException) {
-                                plugin.logger.info("Error during profession tick! ClassCastException while casting FurnaceRecipe, item: ${recipe.key}.")
-                            }
+                            } catch (ignored: ClassCastException) {}
                         }
 
                         else -> {
@@ -196,10 +193,9 @@ class ProfessionManager: Listener {
 
         // Add the result to the inventory
         villager.addItemToQuillInventory(item)
-        plugin.logger.info("Villager ${villager.customName} has produced an item ${item.type}.")
     }
 
-    data class UniqueItemDescription(val itemDescription: String, val itemName: String)
+    data class UniqueItemDescription(val itemDescription: String, val itemNames: List<String>)
     fun generateUniqueItemDescription(villager: Villager, item: ItemStack) {
 
         val villagerName = villager.customName ?: "unknown"
@@ -221,7 +217,7 @@ class ProfessionManager: Listener {
             "itemRarity"              to if (item.isUniqueItem()) item.getUniqueItemRarity().toString().lowercase() else UniqueItemRarity.COMMON.toString().lowercase(),
             "settlementName"          to settlementName,
             "settlementLevel"         to settlementLevel,
-            "randomLetterLowerCase"   to QuestingUtility.getRandomLetter().lowercase(),
+            "setting"                 to plugin.bifrost.setting,
             "namingStyle"             to plugin.bifrost.namingStyle
         )
 
@@ -230,7 +226,6 @@ class ProfessionManager: Listener {
 
         val prompt = promptTemplate.replaceMap(placeholders)
         plugin.bifrost.client.sendRequest(prompt, UniqueItemDescription::class, onSuccess = { data ->
-            plugin.logger.info("Generated a new unique name description!")
             plugin.logger.info(data.toString())
             plugin.server.scheduler.runTask(plugin) { _ ->
                 this.finalizeUniqueItem(villager, item, data)
@@ -244,7 +239,7 @@ class ProfessionManager: Listener {
         val rarity   = item.getUniqueItemRarity()
 
         // Обновляем мету
-        meta.setItemName((rarity.color + data.itemName).color())
+        meta.setItemName((rarity.color + data.itemNames.random()).color())
 
         val words = data.itemDescription.split(" ") // spacing
         val lore  = mutableListOf<String>()

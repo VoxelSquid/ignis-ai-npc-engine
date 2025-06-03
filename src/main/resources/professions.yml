@@ -97,7 +97,9 @@ villager-item-producing:
 
       # Items from item-priority will not be selected as quest rewards. These items will be requested by villagers as quest items when generating a quest related to collecting professions items.
       item-priority:
-        - LEATHER~16-64
+        - LEATHER~12-24
+        - LEATHER~24-32
+        - LEATHER~32-48
         - IRON_INGOT~12-24
         - ROTTEN_FLESH~8-16
         - RABBIT_HIDE~8-24
@@ -163,7 +165,11 @@ villager-item-producing:
         - AMETHYST_SHARD~18-32
         - COPPER_INGOT~24-48
         - COAL~8-32
-        - IRON_INGOT~16-64
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
         - DIAMOND~2-16
         - QUARTZ~16-32
 
@@ -188,7 +194,11 @@ villager-item-producing:
         - STONE~12-26
         - COAL~12-24
         - STICK~12-36
-        - IRON_INGOT~12-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
         - OAK_PLANKS~12-24
         - DIAMOND~2-12
         - QUARTZ~12-32
@@ -210,7 +220,11 @@ villager-item-producing:
         - BLACKSTONE~12-26
         - COAL~12-24
         - STICK~12-36
-        - IRON_INGOT~32-64
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
+        - IRON_INGOT~16-32
         - DIAMOND~6-12
         - OAK_PLANKS~12-24
 

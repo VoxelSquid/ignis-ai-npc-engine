@@ -25,6 +25,7 @@ import me.voxelsquid.anima.quest.ProgressTracker.Companion.questsFailed
 import me.voxelsquid.anima.quest.base.Quest
 import me.voxelsquid.anima.quest.base.Quest.QuestData
 import me.voxelsquid.anima.quest.gathering.GatheringQuest
+import me.voxelsquid.anima.quest.gathering.GatheringQuestType
 import me.voxelsquid.anima.quest.gathering.QuestItemPicker
 import me.voxelsquid.anima.quest.hunting.HuntingQuest
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.Reputation
@@ -61,35 +62,35 @@ class QuestManager : Listener {
     // В этом тике мы выбираем жителя и создаём для него квест. Вопрос лишь в том, есть ли необходимость генерировать квест сразу. Думаю, да.
     fun tick() {
         val world = this.selectRandomWorld() ?: run {
-            plugin.logger.info("Quest generation tick. No world.")
             return
         }
 
         val villager = this.selectRandomVillager(world) ?: run {
-            plugin.logger.info("Quest generation tick. Can't find a villager.")
             return
         }
 
         if (villager.getPersonalityData() == null) run {
-            plugin.logger.info("Quest generation tick. Villager found, but it has no personality.")
             return
         }
 
         if (villager.profession == Villager.Profession.NONE) run {
-            plugin.logger.info("Quest generation tick. Villager found, but it has no profession.")
             return
         }
 
         if (villager.quests.size > 1 + villager.villagerLevel) run {
-            plugin.logger.info("Quest generation tick. Villager found, but it has too much quests already.")
             return
         }
 
-        plugin.logger.info("Quest generation tick. Preparing a new quest...")
         val questType = Quest.Type.entries.random()
         val quest = when (questType) {
             Quest.Type.GATHERING -> GatheringQuest(villager)
             Quest.Type.HUNTING -> {
+
+                // Если рандомнулся охотничий квест, но у жителя нет квеста на развитие профессии, то мы форсим его генерацию.
+                if (villager.quests.find { it.gatheringQuestType == GatheringQuestType.PROFESSION_ITEM } == null) {
+                    GatheringQuest(villager, gatheringQuestType = GatheringQuestType.PROFESSION_ITEM)
+                }
+
                 val scoreLimit = HumanoidManager.InventoryWealth.getProfessionLimit(villager.villagerLevel).maxWealth
                 if (questItemData.isEmpty()) {
                     plugin.logger.severe("Quest item database is empty! Use \"/quest item add\" command to add dynamic quest items!")

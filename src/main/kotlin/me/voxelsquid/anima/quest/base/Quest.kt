@@ -68,12 +68,8 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
             }
             villager.addQuest(questData)
             actualQuests.add(questData.questID)
-            plugin.logger.info("Quest generation tick. Quest has been generated successfully!")
-            plugin.logger.info(this.questData.toString())
-        }, onFailure = { exception ->
-            exception.printStackTrace()
-            plugin.logger.warning("Error during quest generation! WTF?")
-        })
+        }, {}
+        )
     }
 
     private fun prepareBasicGenerationPrompt() : String {

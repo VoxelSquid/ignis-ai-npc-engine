@@ -1,10 +1,12 @@
 package me.voxelsquid.anima.humanoid.dialogue
 
 import com.cryptomorin.xseries.XSound
+import com.google.gson.JsonSyntaxException
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.Ignis.Companion.sendFormattedMessage
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.humanoid.HumanoidManager
+import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addItemToQuillInventory
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.professionLevelName
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.subInventory
@@ -18,7 +20,12 @@ import me.voxelsquid.psyche.HumanoidController.Companion.bifrost
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityType
+import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getVoicePitch
+import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getVoiceSound
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
+import net.md_5.bungee.api.ChatMessageType
+import net.md_5.bungee.api.chat.TextComponent
+import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Villager
@@ -27,6 +34,8 @@ import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 
 class DialogueSession(val player: Player, val entity: Villager) : Listener {
@@ -82,15 +91,13 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
 
     }
 
-    /*
-
     @EventHandler
     private fun onPlayerDropItem(event: PlayerDropItemEvent) {
         if (giftAwaiting && event.player == player && !cancelled) {
             if (readyToSend) {
                 this.cooldown()
-                plugin.geminiProvider.generateGiftReaction(player, entity, event.itemDrop.itemStack.clone(), dialogueHistory)
-                (entity as CraftVillager).handle.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(event.itemDrop.itemStack))
+                this.generateGiftReaction(player, entity, event.itemDrop.itemStack.clone(), dialogueHistory)
+                // TODO: (entity as CraftVillager).handle.setItemInHand(InteractionHand.MAIN_HAND, CraftItemStack.asNMSCopy(event.itemDrop.itemStack))
                 giftAwaiting = false
                 readyToSend = false
                 lastMessageTime = System.currentTimeMillis()
@@ -99,8 +106,6 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             } else player.sendFormattedMessage(cooldownMessage)
         }
     }
-
-     */
 
     @EventHandler
     private fun onPlayerChat(event: AsyncPlayerChatEvent) {
@@ -175,8 +180,64 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             NPCChatResponseData::class,
             onSuccess = { response ->
                 this.handleChatResponse(response)
-            }, onFailure = { error ->
-                player.sendMessage("AI is overloaded, response generation can take a bit of time... (send this in actionbar idiot)")
+            }, onFailure = {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§a§oAI is overloaded, response generation can take a bit of time..."))
+            }
+        )
+
+    }
+
+    data class NPCGiftReaction(val npcResponse: List<String>, val memoryNode: String, val impression: String, val updatedOpinionOnPlayer: String, val keepTheGift: Boolean)
+    fun generateGiftReaction(player: Player, villager: Villager, gift: ItemStack, dialogue: MutableList<String>) {
+
+        val npcName    = villager.customName ?: "unknown"
+        val settlement = villager.settlement
+
+        val opinionOnPlayer = villager.getEmotionalMemory().opinions[player.uniqueId] ?: "Unknown. It is their first meeting."
+        val shortMemory     = villager.getEmotionalMemory().shortMemory.toString()
+
+        val playerReputation = settlement?.let { player.getPlayerReputationStatus(settlement).toString() } ?: "NEUTRAL"
+        val race = villager.race
+
+        val currentBiome   = villager.world.getBiome(villager.location).key.key
+        val currentDaytime = Daytime.fromWorldTime(villager.world.time).toString().lowercase()
+        val currentWeather = villager.world.let { if (it.isThundering) return@let "thunder" else if (it.isClearWeather) "clear" else "raining" }
+        val activeEffects  = villager.activePotionEffects.map { it.type.toString() }.toString()
+        val wealth = HumanoidManager.InventoryWealth.getWealthLevel(villager.subInventory.contents.filterNotNull().toList().calculatePrice())
+
+        val placeholders = mapOf(
+            "playerName"         to player.name,
+            "opinionOnPlayer"    to opinionOnPlayer,
+            "npcName"            to npcName,
+            "npcRace"            to race.name.replace("_", " "),
+            "raceLore"           to race.description,
+            "npcGender"          to villager.gender.toString(),
+            "npcPersonality"     to villager.getPersonalityType().toString(),
+            "npcProfession"      to "${villager.profession}",
+            "npcProfessionLevel" to villager.professionLevelName,
+            "settlementName"     to (settlement?.data?.settlementName ?: "[NO SETTLEMENT]"),
+            "playerReputation"   to playerReputation,
+            "currentBiome"       to currentBiome,
+            "currentTime"        to currentDaytime,
+            "currentWeather"     to currentWeather,
+            "activeEffects"      to activeEffects,
+            "itemType"           to gift.type.toString().lowercase().replace("_", " "),
+            "itemAmount"         to gift.amount.toString(),
+            "dialogueHistory"    to if (dialogue.isEmpty()) "[NO PREVIOUS MESSAGES.]" else dialogue.toString(),
+            "shortMemory"        to shortMemory,
+            "wealth"             to wealth.toString()
+        )
+
+        val prompt = placeholders.entries.fold(ignisInstance.configManager.prompts.getString("npc-gift-reaction")!!) { acc, entry ->
+            acc.replace("{${entry.key}}", entry.value)
+        }
+
+        bifrost.client.sendRequest(prompt,
+            NPCGiftReaction::class,
+            onSuccess = { reaction ->
+                this.handleGiftReaction(player, villager, gift, reaction)
+            }, onFailure = {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§a§oAI is overloaded, response generation can take a bit of time..."))
             }
         )
 
@@ -188,6 +249,42 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
 
     private enum class Directive {
         NONE, OPEN_TRADE_MENU, INTERRUPT_CONVERSATION;
+    }
+
+    private fun handleGiftReaction(player: Player, entity: Villager, gift: ItemStack, reaction: NPCGiftReaction) {
+
+        if (!cancelled) {
+            reaction.npcResponse.forEach { dialogueHistory.add("${entity.customName}: \"$it\" ->") }
+
+            // NPC memory modification.
+            entity.getEmotionalMemory().let { memory ->
+                memory.shortMemory.add(reaction.memoryNode)
+                memory.opinions[player.uniqueId] = reaction.updatedOpinionOnPlayer
+                memory.save(entity)
+            }
+
+            val impression = Impression.valueOf(reaction.impression)
+
+            // Sending messages.
+            var delay = 0L
+            for (message in reaction.npcResponse) {
+                plugin.server.scheduler.runTaskLater(plugin, { _ ->
+                    player.sendFormattedMessage(npcResponseMessage.replace("{npcName}", entity.customName ?: "NPC").replace("{message}", message))
+                    player.playSound(player.eyeLocation, Sound.UI_HUD_BUBBLE_POP, 1F, 1.25F)
+                    // Handling directive only on last message of the response.
+                    if (reaction.npcResponse.last() == message) {
+                        if (!reaction.keepTheGift) {
+                            entity.world.dropItem(entity.location, gift)
+                        } else entity.addItemToQuillInventory(gift)
+                        readyToSend = true
+                        // Modifying reputation after talking. We should add check for it.
+                        entity.settlement?.addReputation(player, impression.score)
+                    }
+                }, delay)
+                delay += 60L
+            }
+
+        }
     }
 
     private fun handleChatResponse(responseData: NPCChatResponseData) {
