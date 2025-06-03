@@ -1,6 +1,8 @@
 package me.voxelsquid.anima.runtime
 
-import me.voxelsquid.anima.utility.InventorySerializer.Companion.toBase64
+import com.cryptomorin.xseries.XItemStack
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.inventory.ItemStack
@@ -16,6 +18,7 @@ class DatabaseManager(plugin: JavaPlugin) {
     private val logger: Logger = plugin.logger
     private val dbFile: File = File(plugin.dataFolder, "data.db")
     private var connection: Connection? = null
+    private val gson = Gson()
 
     init {
         // Ensure plugin data folder exists
@@ -31,7 +34,7 @@ class DatabaseManager(plugin: JavaPlugin) {
             // Load SQLite JDBC driver
             Class.forName("org.sqlite.JDBC")
 
-            // Create or connect to database
+            // Connect to database
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile.absolutePath}")
             createTables()
             logger.info("Successfully connected to SQLite database: ${dbFile.absolutePath}")
@@ -47,7 +50,7 @@ class DatabaseManager(plugin: JavaPlugin) {
             CREATE TABLE IF NOT EXISTS quest_items (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 entity_type TEXT NOT NULL,
-                item_base64 TEXT NOT NULL,
+                item_json TEXT NOT NULL,
                 quantity INTEGER NOT NULL,
                 drop_chance DOUBLE NOT NULL,
                 score INTEGER NOT NULL
@@ -57,25 +60,27 @@ class DatabaseManager(plugin: JavaPlugin) {
         try {
             connection?.createStatement()?.executeUpdate(sql)
         } catch (e: SQLException) {
-            logger.severe("Failed to create tables: ${e.message}")
+            logger.severe("Failed to create table quest_items: ${e.message}")
         }
     }
 
     fun saveQuestItem(entityType: String, item: ItemStack, quantity: Int, dropChance: Double, score: Int): Boolean {
         val sql = """
-            INSERT INTO quest_items (entity_type, item_base64, quantity, drop_chance, score)
+            INSERT INTO quest_items (entity_type, item_json, quantity, drop_chance, score)
             VALUES (?, ?, ?, ?, ?)
         """.trimIndent()
 
         try {
+            val itemMap = XItemStack.serialize(item)
+            val json = gson.toJson(itemMap)
             val statement = connection?.prepareStatement(sql)
             statement?.setString(1, entityType)
-            statement?.setString(2, toBase64(item))
+            statement?.setString(2, json)
             statement?.setInt(3, quantity)
             statement?.setDouble(4, dropChance)
             statement?.setInt(5, score)
             statement?.executeUpdate()
-            // TODO ignisInstance.questManager.questItemData.add(QuestItem(entityType, item, quantity, dropChance, score))
+            // TODO ignisInstance.questManager.questItemData.add(QuestItem(entity God knows what this is supposed to be
             return true
         } catch (e: SQLException) {
             logger.severe("Failed to save quest item: ${e.message}")
@@ -86,13 +91,17 @@ class DatabaseManager(plugin: JavaPlugin) {
     data class QuestItem(
         val id: Int,
         val entityType: String,
-        val item: String,
+        val item: Map<String, Any>,
         val quantity: Int,
         val dropChance: Double,
         val score: Int
     ) {
-        constructor(entityType: String, item: ItemStack, quantity: Int, dropChance: Double, score: Int) : this(Random.nextInt(), entityType, toBase64(item), quantity, dropChance, score)
-        companion object { val EMPTY = QuestItem(0, EntityType.UNKNOWN.toString(), toBase64(ItemStack(Material.AIR)), 0, 0.0, 0) }
+        constructor(entityType: String, item: Map<String, Any>, quantity: Int, dropChance: Double, score: Int) :
+                this(Random.nextInt(), entityType, item, quantity, dropChance, score)
+
+        companion object {
+            val EMPTY = QuestItem(0, EntityType.UNKNOWN.toString(), XItemStack.serialize(ItemStack(Material.AIR)), 0, 0.0, 0)
+        }
     }
 
     fun getQuestItemsByEntityType(entityType: EntityType): List<QuestItem> {
@@ -105,11 +114,14 @@ class DatabaseManager(plugin: JavaPlugin) {
             val resultSet = statement?.executeQuery()
 
             while (resultSet?.next() == true) {
+                val json = resultSet.getString("item_json")
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                val itemStack: Map<String, Any> = gson.fromJson(json, type)
                 items.add(
                     QuestItem(
                         id = resultSet.getInt("id"),
                         entityType = resultSet.getString("entity_type"),
-                        item = resultSet.getString("item_base64"),
+                        item = itemStack,
                         quantity = resultSet.getInt("quantity"),
                         dropChance = resultSet.getDouble("drop_chance"),
                         score = resultSet.getInt("score")
@@ -132,11 +144,14 @@ class DatabaseManager(plugin: JavaPlugin) {
             val resultSet = statement?.executeQuery(sql)
 
             while (resultSet?.next() == true) {
+                val json = resultSet.getString("item_json")
+                val type = object : TypeToken<Map<String, Any>>() {}.type
+                val itemStack: Map<String, Any> = gson.fromJson(json, type)
                 items.add(
                     QuestItem(
                         id = resultSet.getInt("id"),
                         entityType = resultSet.getString("entity_type"),
-                        item = resultSet.getString("item_base64"),
+                        item = itemStack,
                         quantity = resultSet.getInt("quantity"),
                         dropChance = resultSet.getDouble("drop_chance"),
                         score = resultSet.getInt("score")

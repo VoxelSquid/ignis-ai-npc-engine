@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.utility
 
+import com.cryptomorin.xseries.XPotion
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -17,7 +18,7 @@ class ItemStackCalculator {
 
         /* Подсчитывание цены для всего стака. */
         fun ItemStack.calculatePrice(): Int {
-            return (this.type.getMaterialPrice() * this.amount + ((this.itemMeta as? PotionMeta)?.let { plugin.configManager.prices.getInt("effect-type.${it.basePotionData.type}") } ?: 0))
+            return (this.type.getMaterialPrice() * this.amount + ((this.itemMeta as? PotionMeta)?.let { plugin.configManager.prices.getInt("effect-type.${XPotion.of(it.basePotionType!!)}") } ?: 0))
         }
 
         fun Material.getMaterialPrice(defaultPrice: Int = 50): Int {

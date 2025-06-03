@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.quest.hunting
 
+import com.cryptomorin.xseries.XItemStack
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.quest.base.Quest
 import me.voxelsquid.anima.runtime.DatabaseManager
@@ -15,7 +16,7 @@ class HuntingQuest(villager: Villager,
                     ) : Quest(
                         villager,
                         questType,
-                        requiredItem = fromBase64(questItem.item).apply { this.amount = quantity },
+                        requiredItem = XItemStack.deserialize(questItem.item).apply { this.amount = quantity },
                         score = questItem.score,
                         requiredQuestItem = questItem,
                         targetEntityType = targetEntityType,
@@ -23,7 +24,7 @@ class HuntingQuest(villager: Villager,
 {
 
     init {
-        val item = fromBase64(requiredQuestItem.item)
+        val item = XItemStack.deserialize(requiredQuestItem.item)
         val baseColor = ConfigurationAccessor("text-formatting.dialogue-box.text.base-color", "&f", mutableListOf("Standard color of common words in dialogue boxes.")).get()
         placeholders["questItem"] = (item.itemMeta?.displayName ?: item.type.toString().lowercase().replace("_", " ")) + baseColor.replace("&", "§")
         placeholders["questItemAmount"] = quantity.toString()

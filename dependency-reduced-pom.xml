@@ -80,7 +80,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.19.4-R0.1-SNAPSHOT</version>
+      <version>1.21.5-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -102,7 +102,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.VoxelSquid</groupId>
+      <groupId>me.voxelsquid</groupId>
       <artifactId>bifrost-api</artifactId>
       <version>1.6</version>
       <scope>provided</scope>

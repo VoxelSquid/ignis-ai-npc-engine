@@ -70,8 +70,9 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
             actualQuests.add(questData.questID)
             plugin.logger.info("Quest generation tick. Quest has been generated successfully!")
             plugin.logger.info(this.questData.toString())
-        }, onFailure = {
-            plugin.logger.warning("Error during quest generation.")
+        }, onFailure = { exception ->
+            exception.printStackTrace()
+            plugin.logger.warning("Error during quest generation! WTF?")
         })
     }
 

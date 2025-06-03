@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.quest.gathering
 
+import com.cryptomorin.xseries.XEnchantment
 import com.cryptomorin.xseries.XMaterial
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.hunger
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
@@ -85,7 +86,7 @@ class QuestItemPicker {
             }
         }
 
-        val defaultEnchantment = Enchantment.DURABILITY
+        val defaultEnchantment = XEnchantment.UNBREAKING.get()!!
         val enchantment = Registry.ENCHANTMENT.get(NamespacedKey.minecraft(allowedEnchantments.random().lowercase())) ?: defaultEnchantment
 
         return ItemStack(Material.ENCHANTED_BOOK).apply {

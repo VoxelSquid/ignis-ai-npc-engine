@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.quest
 
+import com.cryptomorin.xseries.XItemStack
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
@@ -95,7 +96,7 @@ class QuestManager : Listener {
                     return
                 }
                 questItemData.filter { it.score <= scoreLimit }.random().let { item ->
-                    if (villager.quests.map { it.getRequiredItem() }.find { it.type == fromBase64(item.item).type } != null) return
+                    if (villager.quests.map { it.getRequiredItem() }.find { it.type == XItemStack.deserialize(item.item).type } != null) return
                     HuntingQuest(villager, item.entityType, item)
                 }
             }

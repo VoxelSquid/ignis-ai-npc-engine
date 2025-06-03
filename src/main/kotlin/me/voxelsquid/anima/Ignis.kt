@@ -1,5 +1,6 @@
 package me.voxelsquid.anima
 
+import com.cryptomorin.xseries.XItemStack
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import me.voxelsquid.bifrost.Bifrost
@@ -7,11 +8,13 @@ import me.voxelsquid.anima.configuration.ConfigManager
 import me.voxelsquid.anima.humanoid.HumanoidManager
 import me.voxelsquid.anima.quest.QuestManager
 import me.voxelsquid.anima.runtime.PluginRuntimeController
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.world.WorldLoadEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 
 class Ignis : JavaPlugin(), Listener {

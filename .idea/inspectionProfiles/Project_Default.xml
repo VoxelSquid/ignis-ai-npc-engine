@@ -4,22 +4,25 @@
     <inspection_tool class="MemberVisibilityCanBePrivate" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="SimplifyBooleanWithConstants" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="UnusedSymbol" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="isIgnoringEnabled" value="true" />
       <option name="ignoredModules">
         <list>
           <option value="evolve" />
           <option value="evolve" />
+          <option value="anima" />
         </list>
       </option>
       <option name="ignoredPackages">
         <list>
           <option value="com.google.guava:guava:31.0.1-jre" />
           <option value="org.yaml:snakeyaml:1.30" />
+          <option value="com.google.guava:guava:31.1-jre" />
         </list>
       </option>
       <option name="ignoredReasons">
         <list>
+          <option value="Not exploitable" />
           <option value="Not exploitable" />
           <option value="Not exploitable" />
         </list>

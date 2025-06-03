@@ -165,6 +165,7 @@ class HumanoidManager: Listener {
             } ?: mutableListOf()
 
         fun LivingEntity.addQuest(quest: QuestData) {
+            plugin.logger.info("Trying to save quest ${quest.questName}. Quest data: $quest.")
             persistentDataContainer.set(HumanoidNamespace.questDataKey, PersistentDataType.STRING, plugin.gson.toJson(quests.apply { add(quest) }))
         }
 
