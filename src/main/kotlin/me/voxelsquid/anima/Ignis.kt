@@ -26,13 +26,15 @@ class Ignis : JavaPlugin(), Listener {
 
     val allowedWorlds: MutableList<World> = mutableListOf()
 
-    /**
+    /*
      * TODO
      *  Не работает ProfessionManager (жители не крафтят шмотки и не торгуют своим говном).
      *  Не работает подсветка предметов.
-     *  Нет команд. Команды очень важны.
      *  Когда закончишь со всей хуйнёй, не забудь убрать дебаговые саообщения.
      *  Нет википедии. Алсо, я решил не переделывать квестген — я просто доработал его.
+     *  Жителям нельзя дарить подарки.
+     *  Необходимо протестить появление жителей болот.
+     *  Жители не хавают еду.
      */
 
     @EventHandler
@@ -83,6 +85,14 @@ class Ignis : JavaPlugin(), Listener {
 
         fun Player.sendFormattedMessage(message: String) {
             this.sendMessage(ignisInstance.controller.messagePrefix + message)
+        }
+
+        fun String.replaceMap(replacements: Map<String, String>): String {
+            var result = this
+            for ((key, value) in replacements) {
+                result = result.replace("{${key}}", value)
+            }
+            return result
         }
 
     }

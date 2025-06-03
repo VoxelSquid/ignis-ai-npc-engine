@@ -36,6 +36,7 @@ class HumanoidManager: Listener {
     val interactionManager = InteractionManager()
     val settlementManager  = SettlementManager()
     val tradeHandler       = HumanoidTradeHandler()
+    val professionManager  = ProfessionManager()
 
     private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()
     private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
@@ -49,7 +50,7 @@ class HumanoidManager: Listener {
     private fun startTickers() {
         plugin.logger.info(questIntervalTicks.toString())
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> plugin.questManager.tick() }, 0, questIntervalTicks)
-
+        plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
         /*
 
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
