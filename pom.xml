@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.voxelsquid</groupId>
-    <artifactId>anima</artifactId>
-    <version>1.0</version>
+    <artifactId>ignis</artifactId>
+    <version>0.3.1</version>
     <packaging>jar</packaging>
 
     <name>anima</name>
