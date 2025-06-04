@@ -12,7 +12,6 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity
 import io.github.retrooper.packetevents.util.SpigotConversionUtil
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent
-import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.Ignis.Companion.sendFormattedMessage
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
@@ -21,11 +20,13 @@ import me.voxelsquid.anima.event.PlayerAcceptQuestEvent
 import me.voxelsquid.anima.event.QuestInvalidationEvent
 import me.voxelsquid.anima.gameplay.settlement.Settlement
 import me.voxelsquid.anima.humanoid.HumanoidManager
+import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addItemToQuillInventory
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.addQuest
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.isFromSpawner
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.removeQuest
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
+import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.takeItemFromQuillInventory
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.talk
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.actualQuests
 import me.voxelsquid.anima.quest.ProgressTracker.Companion.experienceEarnedByQuests
@@ -42,8 +43,10 @@ import me.voxelsquid.anima.quest.hunting.HuntingQuest
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.Reputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.addReputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.getPlayerReputationStatus
-import me.voxelsquid.anima.utility.InventorySerializer.Companion.fromBase64
+import me.voxelsquid.psyche.HumanoidController.Companion.instance
+import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.entity.Item
@@ -53,6 +56,9 @@ import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.PotionMeta
+import org.bukkit.potion.PotionType
 
 class QuestManager : Listener {
 
@@ -126,7 +132,17 @@ class QuestManager : Listener {
             event.player.closeInventory()
 
             when (questData.gatheringQuestType) {
-                else -> finishQuest(event.player, event.merchant, questData)
+                GatheringQuestType.BOOZE -> {
+                    this.finishBrewQuest(event.merchant, questData.getRequiredItem()) {
+                        plugin.questManager.finishQuest(event.player, event.merchant, questData)
+                    }
+                }
+                GatheringQuestType.FUNGUS_SEARCH -> {
+                    this.finishFungusQuest(event.merchant, questData.getRequiredItem()) {
+                        plugin.questManager.finishQuest(event.player, event.merchant, questData)
+                    }
+                }
+                else -> plugin.questManager.finishQuest(event.player, event.merchant, questData)
             }
 
         }
@@ -315,6 +331,24 @@ class QuestManager : Listener {
         onFinish.invoke()
         this.invalidateQuest(quest, QuestInvalidationEvent.Reason.FINISHED_BY_SOMEONE_ELSE)
         villager.talk(player, this.determineFinishingDialogue(player, villager, quest))
+    }
+
+    private fun finishBrewQuest(villager: Villager, potion: ItemStack, reply: () -> Unit) {
+        val meta = (potion.clone().itemMeta as? PotionMeta) ?: throw NullPointerException("Potion meta is null during finishing booze quest!")
+        instance.entityProvider.asHumanoid(villager as LivingEntity).consume(villager.world, potion, Sound.ENTITY_GENERIC_DRINK, 5, villager.location, 7) {
+            villager.addPotionEffect(meta.basePotionType!!.potionEffects.first())
+            villager.takeItemFromQuillInventory(potion, 1)
+            villager.addItemToQuillInventory(ItemStack(Material.GLASS_BOTTLE))
+            reply.invoke()
+        }
+    }
+
+    private fun finishFungusQuest(villager: Villager, fungus: ItemStack, reply: () -> Unit) {
+        instance.entityProvider.asHumanoid(villager as LivingEntity).consume(villager.world, ItemStack(Material.SUSPICIOUS_STEW), Sound.ENTITY_GENERIC_EAT, 5, villager.location, 7) {
+            PotionType.entries.random().potionEffects.firstOrNull()?.let { villager.addPotionEffect(it) }
+            villager.takeItemFromQuillInventory(fungus, fungus.amount)
+            reply.invoke()
+        }
     }
 
     /* Определяем текст после завершения квеста на основании репутации игрока. */

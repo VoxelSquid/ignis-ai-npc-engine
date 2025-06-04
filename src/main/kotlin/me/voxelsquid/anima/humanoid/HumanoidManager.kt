@@ -14,12 +14,18 @@ import me.voxelsquid.anima.settlement.SettlementManager
 import me.voxelsquid.anima.settlement.SettlementManager.Companion.settlements
 import me.voxelsquid.anima.utility.InventorySerializer
 import me.voxelsquid.psyche.HumanoidController
+import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.HumanoidController.Configuration
+import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getVoicePitch
+import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getVoiceSound
 import me.voxelsquid.psyche.race.RaceManager
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.entity.Pose
 import org.bukkit.entity.Villager
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -27,7 +33,11 @@ import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.SuspiciousStewMeta
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import kotlin.random.Random
 
 class HumanoidManager: Listener {
 
@@ -51,9 +61,6 @@ class HumanoidManager: Listener {
         plugin.logger.info(questIntervalTicks.toString())
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> plugin.questManager.tick() }, 0, questIntervalTicks)
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
-        /*
-
-        plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
         plugin.server.scheduler.runTaskTimer(plugin, { _ ->
             plugin.allowedWorlds.flatMap { it.entities.filterIsInstance<Villager>() }.shuffled().forEachIndexed { index, villager ->
                 if (villager.pose != Pose.SLEEPING) {
@@ -64,8 +71,26 @@ class HumanoidManager: Listener {
                 }
             }
         }, 0, foodIntervalTicks)
+    }
 
-         */
+    fun Villager.eat() = subInventory.filterNotNull().find { it.type.isEdible }?.let { food ->
+        val sound = when (food.type) {
+            Material.HONEY_BOTTLE -> Sound.ITEM_HONEY_BOTTLE_DRINK
+            Material.MUSHROOM_STEW, Material.RABBIT_STEW, Material.SUSPICIOUS_STEW -> Sound.ENTITY_GENERIC_DRINK
+            else -> Sound.ENTITY_GENERIC_EAT
+        }
+        instance.entityProvider.asHumanoid(this as LivingEntity).consume(world, food, sound, 3, location, period = 7) {
+            takeItemFromQuillInventory(food, 1)
+            if (food.type.toString().contains("STEW")) {
+                addItemToQuillInventory(ItemStack(Material.BOWL))
+                (food.itemMeta as? SuspiciousStewMeta)?.customEffects?.forEach { addPotionEffect(it) }
+            }
+            if (food.type == Material.HONEY_BOTTLE) addItemToQuillInventory(ItemStack(Material.GLASS_BOTTLE))
+            world.playSound(location, getVoiceSound(), 1F, getVoicePitch())
+            world.playSound(location, Sound.ENTITY_PLAYER_BURP, 1F, 1F)
+            hunger += 7.5
+            if (hunger >= 20.0) addPotionEffect(PotionEffect(PotionEffectType.REGENERATION, 200, 1))
+        }
     }
 
     @EventHandler
