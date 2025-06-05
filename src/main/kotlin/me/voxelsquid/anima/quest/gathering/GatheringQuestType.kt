@@ -1,17 +1,15 @@
 package me.voxelsquid.anima.quest.gathering
 
-import com.cryptomorin.xseries.XPotion
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.subInventory
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.calculatePrice
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.getMaterialPrice
+import me.voxelsquid.anima.utility.XVanillaPotion
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
 import org.bukkit.Material
 import org.bukkit.entity.Villager
 import org.bukkit.entity.Villager.Profession
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.PotionMeta
-import org.bukkit.potion.PotionData
 import kotlin.random.Random
 
 enum class GatheringQuestType(private val promptConfigPath: String, val randomQuestItem: (Villager) -> ItemStack) {
@@ -45,18 +43,7 @@ enum class GatheringQuestType(private val promptConfigPath: String, val randomQu
 
     BOOZE("booze-quest", {
         val allowedPotionTypes = ignisInstance.configManager.prompts.getStringList("booze-quest.allowed-potion-types")
-        ItemStack(Material.POTION).apply {
-            val randomPotionType = allowedPotionTypes.random()
-            itemMeta = (this.itemMeta as PotionMeta).apply {
-                try {
-                    XPotion.of(randomPotionType).get().potionType?.let {
-                        this.basePotionData = PotionData(it)
-                    }
-                } catch (ignored: Exception) {
-                    this.basePotionData = PotionData(XPotion.REGENERATION.potionType!!)
-                }
-            }
-        }
+        XVanillaPotion.toItemStack(allowedPotionTypes.random())
     }),
 
     SMITHING_TEMPLATE("smithing-template-quest", { villager ->
