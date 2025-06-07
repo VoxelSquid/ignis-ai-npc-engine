@@ -75,7 +75,6 @@ class QuestManager : Listener {
 
     private val cachedQuests = mutableListOf<Quest>()
     private val cachedNames  = mutableListOf<String>()
-    private val language     = plugin.configManager.language
 
     // В этом тике мы выбираем жителя и создаём для него квест. Вопрос лишь в том, есть ли необходимость генерировать квест сразу. Думаю, да.
     fun tick() {
@@ -243,12 +242,12 @@ class QuestManager : Listener {
         val cachedQuest = cachedQuests.find { it.questData.questID == questData.questID } /* Однако, если квест уже кэширован, то нет смысла создавать ещё один экземпляр. */
 
         if (player.quests.any { it.questID == questData.questID }) {
-            player.sendFormattedMessage(language.getString("quest.already-accepted")!!)
+            player.sendFormattedMessage(plugin.configManager.language.getString("quest.already-accepted")!!)
             return
         }
 
         if (player.quests.size >= playerQuestLimit) {
-            val questLimitMessage = language.getString("quest.limit")!!.replace("{playerQuestLimit}", playerQuestLimit.toString())
+            val questLimitMessage = plugin.configManager.language.getString("quest.limit")!!.replace("{playerQuestLimit}", playerQuestLimit.toString())
             player.sendFormattedMessage(questLimitMessage)
             return
         }
@@ -260,7 +259,7 @@ class QuestManager : Listener {
         }
 
         // Отправляем информацию о новом квесте игроку.
-        player.sendFormattedMessage(language.getString("quest.accepted")!!.replace("{quest}", questData.questName))
+        player.sendFormattedMessage(plugin.configManager.language.getString("quest.accepted")!!.replace("{quest}", questData.questName))
 
         // Только один квест может быть активен.
         if (questTracker[player] == null) {
@@ -280,10 +279,10 @@ class QuestManager : Listener {
         progressTracker.stopTracking(player, event.questData)
 
         val message = when (event.reason) {
-            QuestInvalidationEvent.Reason.NPC_DEATH -> language.getString("quest.failed.npcDeath")
-            QuestInvalidationEvent.Reason.TIME_EXPIRATION -> language.getString("quest.failed.timeExpiration")
-            QuestInvalidationEvent.Reason.FINISHED_BY_SOMEONE_ELSE -> language.getString("quest.failed.finishedBySomeoneElse")
-            QuestInvalidationEvent.Reason.NOT_ACTUAL -> language.getString("quest.failed.notActual")
+            QuestInvalidationEvent.Reason.NPC_DEATH -> plugin.configManager.language.getString("quest.failed.npcDeath")
+            QuestInvalidationEvent.Reason.TIME_EXPIRATION -> plugin.configManager.language.getString("quest.failed.timeExpiration")
+            QuestInvalidationEvent.Reason.FINISHED_BY_SOMEONE_ELSE -> plugin.configManager.language.getString("quest.failed.finishedBySomeoneElse")
+            QuestInvalidationEvent.Reason.NOT_ACTUAL -> plugin.configManager.language.getString("quest.failed.notActual")
         }
 
         player.sendFormattedMessage(message!!.replace("{quest}", event.questData.questName))
@@ -317,7 +316,7 @@ class QuestManager : Listener {
         villager.settlement?.addReputation(player, playerReputation)
         villager.villagerExperience += villagerExperience
 
-        val finishMessage = language.getString("quest.finished")!!.replace("{quest}", quest.questName)
+        val finishMessage = plugin.configManager.language.getString("quest.finished")!!.replace("{quest}", quest.questName)
         player.sendFormattedMessage(finishMessage)
 
         progressTracker.stopTracking(player, quest)

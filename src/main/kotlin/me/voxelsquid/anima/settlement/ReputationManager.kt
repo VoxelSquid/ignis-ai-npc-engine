@@ -129,9 +129,9 @@ class ReputationManager : Listener {
         // Adding the value to existent one, used by inner gameplay logic.
         fun Settlement.addReputation(player: Player, value: Int) {
 
-            val increaseMessage = ConfigurationAccessor(fileName = "language.yml", path = "settlement-reputation.increase", defaultValue = "§9Reputation with {currentSettlement} increased by {amount}.").get()
-            val decreaseMessage = ConfigurationAccessor(fileName = "language.yml", path = "settlement-reputation.decrease", defaultValue = "§9Reputation with {currentSettlement} decreased by {amount}.").get()
-            val statusUpdateMessage = ConfigurationAccessor(fileName = "language.yml", path = "settlement-reputation.status-update", defaultValue = "§eYour standing with {currentSettlement} has shifted to {status}.").get()
+            val increaseMessage = plugin.configManager.language.getString("settlement-reputation.increase")!!
+            val decreaseMessage = plugin.configManager.language.getString("settlement-reputation.decrease")!!
+            val statusUpdateMessage = plugin.configManager.language.getString("settlement-reputation.status-update")!!
 
             val previousStatus = player.getPlayerReputationStatus(this)
             data.reputation[player.uniqueId] = (data.reputation[player.uniqueId] ?: 0) + value
@@ -154,7 +154,7 @@ class ReputationManager : Listener {
         // Setting the value, used by set reputation command.
         fun Settlement.setReputation(player: Player, value: Int) {
 
-            val statusUpdateMessage = ConfigurationAccessor(fileName = "language.yml", path = "settlement-reputation.status-update", defaultValue = "§eYour standing with {currentSettlement} has shifted to {status}.").get()
+            val statusUpdateMessage = plugin.configManager.language.getString("settlement-reputation.status-update")!!
 
             val previousStatus = player.getPlayerReputationStatus(this)
             data.reputation[player.uniqueId] = value

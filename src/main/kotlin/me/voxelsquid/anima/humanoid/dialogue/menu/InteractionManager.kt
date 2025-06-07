@@ -227,7 +227,9 @@ class InteractionManager: Listener {
         }
 
         builder.button(ignisInstance.configManager.language.getString("interaction-menu.talk-button")!!) {
-            if (player.getActiveDialogueSession() == null) DialogueSession(player, villager)
+            if (!plugin.isFree(player)) {
+                if (player.getActiveDialogueSession() == null) DialogueSession(player, villager)
+            }
         }
 
         builder.button(ignisInstance.configManager.language.getString("interaction-menu.close-button")!!) { menu ->
