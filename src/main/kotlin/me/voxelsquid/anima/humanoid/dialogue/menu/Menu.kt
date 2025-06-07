@@ -1,5 +1,6 @@
 package me.voxelsquid.anima.humanoid.dialogue.menu
 
+import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager.Companion.openedMenuList
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import org.bukkit.Color
@@ -81,7 +82,7 @@ class Menu(
             EntityType.TEXT_DISPLAY
         ) as TextDisplay
         display.isVisibleByDefault = false
-        viewer.showEntity(instance.plugin, display)
+        viewer.showEntity(ignisInstance, display)
         display.transformation = Transformation(Vector3f(0f, 0f, 0f), AxisAngle4f(), Vector3f(size, size, size), AxisAngle4f())
         display.text = text
         display.billboard = Display.Billboard.CENTER

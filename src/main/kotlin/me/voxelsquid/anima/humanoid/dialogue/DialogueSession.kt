@@ -182,7 +182,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             onSuccess = { response ->
                 this.handleChatResponse(response)
             }, onFailure = {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§a§oAI is overloaded, response generation can take a bit of time..."))
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§aAI is overloaded, response generation can take a bit of time..."))
             }
         )
 
@@ -200,7 +200,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
         val playerReputation = settlement?.let { player.getPlayerReputationStatus(settlement).toString() } ?: "NEUTRAL"
         val race = villager.race
 
-        val biome = villager.world.getBiome(villager.location).toString().replace("_", " ").lowercase()
+        val biome          = villager.world.getBiome(villager.location).toString().replace("_", " ").lowercase()
         val currentBiome   = biome.split(":").getOrNull(1) ?: biome
         val currentDaytime = Daytime.fromWorldTime(villager.world.time).toString().lowercase()
         val currentWeather = villager.world.let { if (it.isThundering) return@let "thunder" else if (it.isClearWeather) "clear" else "raining" }
@@ -239,7 +239,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             onSuccess = { reaction ->
                 this.handleGiftReaction(player, villager, gift, reaction)
             }, onFailure = {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§a§oAI is overloaded, response generation can take a bit of time..."))
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§aAI is overloaded, response generation can take a bit of time..."))
             }
         )
 

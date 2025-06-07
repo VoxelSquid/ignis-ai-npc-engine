@@ -35,7 +35,6 @@ import kotlin.random.Random
 
 class InteractionManager: Listener {
 
-    private val language = ignisInstance.configManager.language
     private val genericReactionMessages by lazy { plugin.humanoidManager.movementController.personalityManager.genericReactionMessages }
     private val buttonTextColor = ConfigurationAccessor(path = "text-formatting.menu.button.color", defaultValue = "&f", comments = mutableListOf("Color of interactive menu buttons, HEX values.")).get()
 
@@ -128,7 +127,7 @@ class InteractionManager: Listener {
         val builder = Builder(villager, player)
 
         // Quest button.
-        builder.button(language.getString("interaction-menu.quests-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.quests-button")!!) {
 
             // Когда игрок спрашивает о квестах у безработного жителя
             if (villager.profession == Villager.Profession.NONE) {
@@ -150,7 +149,7 @@ class InteractionManager: Listener {
         }
 
         // Trading should be possible during conversation sessions.
-        builder.button(language.getString("interaction-menu.trade-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.trade-button")!!) {
 
             // Когда игрок спрашивает о торговле у безработного жителя
             if (villager.profession == Villager.Profession.NONE) {
@@ -168,17 +167,17 @@ class InteractionManager: Listener {
         }
 
         // Gift button.
-        builder.button(language.getString("interaction-menu.gift-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.gift-button")!!) {
             if (player.getActiveDialogueSession()?.giftAwaiting == false) player.getActiveDialogueSession()?.giftAwaiting = true
         }
 
         // Dialogue interruption button.
-        builder.button(language.getString("interaction-menu.interrupt-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.interrupt-button")!!) {
             player.getActiveDialogueSession()?.cancelled = true
         }
 
         // Cancel button.
-        builder.button(language.getString("interaction-menu.close-button")!!) { menu ->
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.close-button")!!) { menu ->
             menu.destroy()
         }
 
@@ -189,7 +188,7 @@ class InteractionManager: Listener {
 
         val builder = Builder(villager, player)
 
-        builder.button(language.getString("interaction-menu.quests-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.quests-button")!!) {
 
             // Когда игрок спрашивает о квестах у безработного жителя
             if (villager.profession == Villager.Profession.NONE) {
@@ -210,7 +209,7 @@ class InteractionManager: Listener {
             }
         }
 
-        builder.button(language.getString("interaction-menu.trade-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.trade-button")!!) {
 
             // Когда игрок спрашивает о торговле у безработного жителя
             if (villager.profession == Villager.Profession.NONE) {
@@ -227,17 +226,11 @@ class InteractionManager: Listener {
             }, 1L)
         }
 
-        builder.button(language.getString("interaction-menu.talk-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.talk-button")!!) {
             if (player.getActiveDialogueSession() == null) DialogueSession(player, villager)
         }
 
-        if (true) { // TODO: DEBUG
-            builder.button("Debug") {
-                this.showDebugMenu(player, villager)
-            }
-        }
-
-        builder.button(language.getString("interaction-menu.close-button")!!) { menu ->
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.close-button")!!) { menu ->
             menu.destroy()
         }
 
@@ -248,28 +241,16 @@ class InteractionManager: Listener {
     private fun showQuestSuggestionMenu(player: Player, villager: Villager, questData: Quest.QuestData) {
 
         val builder = Builder(villager, player)
-        builder.button(language.getString("interaction-menu.accept-button")!!) {
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.accept-button")!!) {
             plugin.server.pluginManager.callEvent(PlayerAcceptQuestEvent(player, villager, questData))
         }
 
-        builder.button(language.getString("interaction-menu.decline-button")!!) { menu ->
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.decline-button")!!) { menu ->
             menu.destroy()
         }
 
-        builder.button(language.getString("interaction-menu.close-button")!!) { menu ->
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.close-button")!!) { menu ->
             menu.destroy()
-        }
-
-        builder.build()
-
-    }
-
-    private fun showDebugMenu(player: Player, villager: Villager) {
-
-        val builder = Builder(villager, player)
-        builder.button("Inventory") {
-            player.playSound(player.location, Sound.BLOCK_ENDER_CHEST_OPEN, 1F, 1F)
-            player.openInventory(villager.subInventory)
         }
 
         builder.build()
@@ -300,7 +281,7 @@ class InteractionManager: Listener {
             }
         }
 
-        builder.button(language.getString("interaction-menu.return-button")!!) { menu ->
+        builder.button(ignisInstance.configManager.language.getString("interaction-menu.return-button")!!) { menu ->
             menu.destroy()
             this.showDefaultMenu(player, villager)
         }
