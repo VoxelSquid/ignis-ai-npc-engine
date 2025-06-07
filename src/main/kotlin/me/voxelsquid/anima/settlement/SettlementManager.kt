@@ -106,7 +106,8 @@ class SettlementManager: Listener {
 
         data class SettlementData(val settlementName: List<String>)
         val existingNames = if (settlements.isNotEmpty()) "Avoid these names: $settlements." else ""
-        val biome   = settlement.data.center.world!!.getBiome(settlement.data.center).key.key
+        val biomeName = settlement.world.getBiome(settlement.data.center).toString().replace("_", " ").lowercase()
+        val biome   = biomeName.split(":").getOrNull(1) ?: biomeName
         val setting = plugin.controller.setting
         val naming  = plugin.controller.naming
 
@@ -121,7 +122,6 @@ class SettlementManager: Listener {
                 val settlements = settlements[settlement.world] ?: throw NullPointerException("Missing settlement list in world ${settlement.world.name}!")
                 settlements.add(settlement)
                 settlement.world.persistentDataContainer.set(settlementsWorldKey, PersistentDataType.STRING, plugin.gson.toJson(settlements.map { it.data }))
-                plugin.logger.info("Settlement was created: ${settlement.data.settlementName}, located at ${settlement.data.center}.")
             },
             onFailure = { error ->
                 println("Error during settlement name generation! (${error.message})")
@@ -133,7 +133,6 @@ class SettlementManager: Listener {
         world.persistentDataContainer.get(settlementsWorldKey, PersistentDataType.STRING)?.let { serializedSettlements ->
             plugin.gson.fromJson(serializedSettlements, object : TypeToken<List<Settlement.SettlementData>>() {})?.let { list ->
                 list.forEach { settlementData ->
-                    plugin.logger.info("Settlement loaded: ${settlementData.settlementName}, location: ${settlementData.center}.")
                     settlements[world]?.add(Settlement(settlementData))
                 }
             }

@@ -6,6 +6,7 @@ import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
+import kotlin.random.Random
 
 class ItemStackCalculator {
 
@@ -21,7 +22,8 @@ class ItemStackCalculator {
         fun ItemStack.calculatePrice(): Int {
             return (this.type.getMaterialPrice() * this.amount + ((this.itemMeta as? PotionMeta)?.let {
                 val type = if (PacketEvents.getAPI().serverManager.version.isNewerThanOrEquals(ServerVersion.V_1_20_6)) it.basePotionType else it.basePotionData!!.type
-                plugin.configManager.prices.getInt("effect-type.$type")
+                val price = plugin.configManager.prices.getInt("effect-type.$type")
+                if (price != 0) price else 2400 + Random.nextInt(1, 6) * 200
             } ?: 0))
         }
 

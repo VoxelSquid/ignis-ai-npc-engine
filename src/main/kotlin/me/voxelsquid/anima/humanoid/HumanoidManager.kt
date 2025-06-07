@@ -58,7 +58,6 @@ class HumanoidManager: Listener {
     }
 
     private fun startTickers() {
-        plugin.logger.info(questIntervalTicks.toString())
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> plugin.questManager.tick() }, 0, questIntervalTicks)
         plugin.server.scheduler.runTaskTimer(plugin, { _ -> professionManager.produceProfessionItem() }, 0, workIntervalTicks)
         plugin.server.scheduler.runTaskTimer(plugin, { _ ->

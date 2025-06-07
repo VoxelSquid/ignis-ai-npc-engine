@@ -110,7 +110,7 @@
   </dependencies>
   <properties>
     <kotlin.version>2.0.0</kotlin.version>
-    <java.version>16</java.version>
+    <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

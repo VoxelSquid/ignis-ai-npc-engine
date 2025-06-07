@@ -141,7 +141,8 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
 
         val race = (villager as LivingEntity).race
 
-        val currentBiome   = villager.world.getBiome(villager.location).key.key
+        val biome = villager.world.getBiome(villager.location).toString().replace("_", " ").lowercase()
+        val currentBiome   = biome.split(":").getOrNull(1) ?: biome
         val currentDaytime = Daytime.fromWorldTime(villager.world.time).toString().lowercase()
         val currentWeather = villager.world.let { if (it.isThundering) return@let "thunder" else if (it.isClearWeather) "clear" else "raining" }
         val activeEffects  = villager.activePotionEffects.map { it.type.toString() }.toString()
@@ -199,7 +200,8 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
         val playerReputation = settlement?.let { player.getPlayerReputationStatus(settlement).toString() } ?: "NEUTRAL"
         val race = villager.race
 
-        val currentBiome   = villager.world.getBiome(villager.location).key.key
+        val biome = villager.world.getBiome(villager.location).toString().replace("_", " ").lowercase()
+        val currentBiome   = biome.split(":").getOrNull(1) ?: biome
         val currentDaytime = Daytime.fromWorldTime(villager.world.time).toString().lowercase()
         val currentWeather = villager.world.let { if (it.isThundering) return@let "thunder" else if (it.isClearWeather) "clear" else "raining" }
         val activeEffects  = villager.activePotionEffects.map { it.type.toString() }.toString()
@@ -270,7 +272,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             for (message in reaction.npcResponse) {
                 plugin.server.scheduler.runTaskLater(plugin, { _ ->
                     player.sendFormattedMessage(npcResponseMessage.replace("{npcName}", entity.customName ?: "NPC").replace("{message}", message))
-                    player.playSound(player.eyeLocation, Sound.UI_HUD_BUBBLE_POP, 1F, 1.25F)
+                    player.playSound(player.eyeLocation, XSound.UI_TOAST_IN.get() ?: throw NullPointerException(), 1F, 1.25F)
                     // Handling directive only on last message of the response.
                     if (reaction.npcResponse.last() == message) {
                         if (!reaction.keepTheGift) {
@@ -324,45 +326,6 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
 
         }
     }
-
-    /*
-    @EventHandler
-    private fun onGiftReaction(event: HumanoidGiftReactionEvent) {
-        if (!cancelled) {
-            event.reaction.npcResponse.forEach { dialogueHistory.add("${entity.customName}: \"$it\" ->") }
-
-            // NPC memory modification.
-            entity.getMemory().let { memory ->
-                memory.shortMemory.add(event.reaction.memoryNode)
-                memory.opinions[player.uniqueId] = event.reaction.updatedOpinionOnPlayer
-                memory.save(entity)
-            }
-
-            val impression = Impression.valueOf(event.reaction.impression)
-
-            // Sending messages.
-            var delay = 0L
-            for (message in event.reaction.npcResponse) {
-                plugin.server.scheduler.runTaskLater(plugin, { _ ->
-                    player.sendFormattedMessage(npcResponseMessage.replace("{npcName}", entity.customName ?: "NPC").replace("{message}", message))
-                    player.playSound(player.eyeLocation, XSound.UI_HUD_BUBBLE_POP.get() ?: throw NullPointerException(), 1F, 1.25F)
-                    // Handling directive only on last message of the response.
-                    if (event.reaction.npcResponse.last() == message) {
-                        if (!event.reaction.keepTheGift) {
-                            entity.world.dropItem(entity.location, event.gift)
-                        } else entity.addItemToQuillInventory(event.gift)
-                        readyToSend = true
-                        // Modifying reputation after talking. We should add check for it.
-                        entity.settlement?.addReputation(player, impression.score)
-                    }
-                }, delay)
-                delay += 60L
-            }
-
-        }
-    }
-
-     */
 
     @EventHandler
     private fun onEntityDeath(event: EntityDeathEvent) {

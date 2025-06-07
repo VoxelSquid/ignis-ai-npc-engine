@@ -1,6 +1,7 @@
 package me.voxelsquid.anima.quest
 
 import com.cryptomorin.xseries.XItemStack
+import com.cryptomorin.xseries.XSound
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract
 import com.github.retrooper.packetevents.event.simple.PacketPlaySendEvent
@@ -43,6 +44,7 @@ import me.voxelsquid.anima.quest.hunting.HuntingQuest
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.Reputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.addReputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.getPlayerReputationStatus
+import me.voxelsquid.anima.utility.XVanillaPotion
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import org.bukkit.Bukkit
@@ -57,8 +59,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.PotionMeta
-import org.bukkit.potion.PotionType
 
 class QuestManager : Listener {
 
@@ -268,7 +268,7 @@ class QuestManager : Listener {
         }
 
         player.addQuest(quest.questData)
-        player.playSound(player, Sound.valueOf(questAcceptedSound), 1F, 1F)
+        player.playSound(player, XSound.of(questAcceptedSound).get().get() ?: throw NullPointerException(), 1F, 1F)
     }
 
     @EventHandler
@@ -334,9 +334,10 @@ class QuestManager : Listener {
     }
 
     private fun finishBrewQuest(villager: Villager, potion: ItemStack, reply: () -> Unit) {
-        val meta = (potion.clone().itemMeta as? PotionMeta) ?: throw NullPointerException("Potion meta is null during finishing booze quest!")
         instance.entityProvider.asHumanoid(villager as LivingEntity).consume(villager.world, potion, Sound.ENTITY_GENERIC_DRINK, 5, villager.location, 7) {
-            villager.addPotionEffect(meta.basePotionType!!.potionEffects.first())
+            XVanillaPotion.getBasePotionTypeEffect(potion)?.let { effect ->
+                villager.addPotionEffect(effect)
+            }
             villager.takeItemFromQuillInventory(potion, 1)
             villager.addItemToQuillInventory(ItemStack(Material.GLASS_BOTTLE))
             reply.invoke()
@@ -345,7 +346,6 @@ class QuestManager : Listener {
 
     private fun finishFungusQuest(villager: Villager, fungus: ItemStack, reply: () -> Unit) {
         instance.entityProvider.asHumanoid(villager as LivingEntity).consume(villager.world, ItemStack(Material.SUSPICIOUS_STEW), Sound.ENTITY_GENERIC_EAT, 5, villager.location, 7) {
-            PotionType.entries.random().potionEffects.firstOrNull()?.let { villager.addPotionEffect(it) }
             villager.takeItemFromQuillInventory(fungus, fungus.amount)
             reply.invoke()
         }

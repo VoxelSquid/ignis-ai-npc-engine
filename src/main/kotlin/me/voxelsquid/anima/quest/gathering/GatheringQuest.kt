@@ -1,6 +1,7 @@
 package me.voxelsquid.anima.quest.gathering
 
 import me.voxelsquid.anima.quest.base.Quest
+import me.voxelsquid.anima.utility.XVanillaPotion
 import org.bukkit.entity.Villager
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.EnchantmentStorageMeta
@@ -18,8 +19,9 @@ class GatheringQuest(villager: Villager,
         placeholders["questItem"] = requiredItem.type.toString().lowercase().replace("_", " ")
         placeholders["questItemAmount"] = requiredItem.amount.toString()
         placeholders["rewardItem"] = bounty.type.toString().lowercase().replace("_", " ")
-        (requiredItem.itemMeta as? PotionMeta)?.basePotionData?.type?.let {
-            placeholders["potionType"] = it.name.replace("_", " ")
+        (requiredItem.itemMeta as? PotionMeta)?.let {
+            val name = XVanillaPotion.getBasePotionTypeEffect(requiredItem)?.type?.key?.key?.lowercase()?.replace("_", " ")
+            placeholders["potionType"] = name?.replace("_", " ") ?: "CLEAN"
         }
         (requiredItem.itemMeta as? EnchantmentStorageMeta)?.let {
             placeholders["enchantmentType"] = it.storedEnchants.keys.first().key.key.replace("_", " ")
