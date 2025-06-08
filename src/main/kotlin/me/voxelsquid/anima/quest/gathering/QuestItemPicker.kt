@@ -37,8 +37,6 @@ class QuestItemPicker {
 
     fun determineGatheringQuestType(villager: Villager): GatheringQuestType {
 
-        if (true) return GatheringQuestType.BOOZE
-
         val types = mutableListOf(GatheringQuestType.PROFESSION_ITEM, GatheringQuestType.MUSIC_DISC, GatheringQuestType.BOOZE)
 
         // Some quests are profession specific

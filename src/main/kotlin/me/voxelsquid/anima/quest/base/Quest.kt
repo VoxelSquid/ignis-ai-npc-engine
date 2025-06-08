@@ -13,6 +13,7 @@ import me.voxelsquid.anima.quest.QuestManager.Companion
 import me.voxelsquid.anima.quest.gathering.GatheringQuestType
 import me.voxelsquid.anima.quest.hunting.HuntingQuest
 import me.voxelsquid.anima.runtime.DatabaseManager
+import me.voxelsquid.anima.settlement.SettlementManager
 import me.voxelsquid.anima.utility.InventorySerializer.Companion.fromBase64
 import me.voxelsquid.anima.utility.InventorySerializer.Companion.toBase64
 import me.voxelsquid.anima.utility.ItemStackCalculator.Companion.calculatePrice
@@ -37,7 +38,7 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
     val bounty = calculateBounty(villager, score)
 
     val placeholders = mutableMapOf(
-        "namingStyle"             to plugin.controller.naming,
+        "namingStyle"             to plugin.bifrost.namingStyle,
         "villagerGender"          to villager.gender.toString(),
         "villagerName"            to (villager.customName ?: "unknown"),
         "villagerRace"            to villager.race.name,
@@ -48,7 +49,7 @@ open class Quest(val villager: Villager, private val questType: Type, val requir
         "settlementLevel"         to villager.settlement?.size().toString(),
         "raceDescription"         to villager.race.description,
         "questInfo"               to questType.questInfo,
-        "extraArguments"          to if (plugin.controller.swearing) when (villager.getPersonalityType()) {
+        "extraArguments"          to if (plugin.bifrost.config.getBoolean("swearing")) when (villager.getPersonalityType()) {
             PersonalityType.ANGRY, PersonalityType.DRUNKARD -> "'20% of words are swearing'"
             else -> ""
         } else ""

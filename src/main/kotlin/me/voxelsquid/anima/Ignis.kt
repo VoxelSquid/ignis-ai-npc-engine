@@ -36,28 +36,6 @@ class Ignis : JavaPlugin(), Listener {
 
     val allowedWorlds: MutableList<World> = mutableListOf()
 
-    /*
-     * TODO
-     *  Когда закончишь со всей хуйнёй, не забудь убрать дебаговые саообщения.
-     *  Нет википедии. Алсо, я решил не переделывать квестген — я просто доработал его.
-     *  Надо добавить команду удаления сеттлментов.
-     */
-
-    @EventHandler
-    private fun onWorldLoad(event: WorldLoadEvent) {
-        if (controller.allowedWorlds.contains(event.world.name)) {
-            this.allowedWorlds.add(event.world)
-        }
-
-        // First world load. We store a lot of shit in there.
-        if (Bukkit.getWorlds()[0] == event.world) {
-            actualQuests = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY)?.toMutableList() ?: actualQuests.toLongArray().also {
-                Bukkit.getWorlds()[0]!!.persistentDataContainer.set(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY, it)
-            }.toMutableList()
-        }
-
-    }
-
     override fun onEnable() {
 
         bifrost = Bifrost.pluginInstance
@@ -87,6 +65,21 @@ class Ignis : JavaPlugin(), Listener {
         }
         Bukkit.getWorlds()[0]!!.persistentDataContainer.set(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY, actualQuests.toLongArray())
         controller.databaseManager.closeConnection()
+    }
+
+    @EventHandler
+    private fun onWorldLoad(event: WorldLoadEvent) {
+        if (controller.allowedWorlds.contains(event.world.name)) {
+            this.allowedWorlds.add(event.world)
+        }
+
+        // First world load. We store a lot of shit in there.
+        if (Bukkit.getWorlds()[0] == event.world) {
+            actualQuests = Bukkit.getWorlds()[0]!!.persistentDataContainer.get(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY)?.toMutableList() ?: actualQuests.toLongArray().also {
+                Bukkit.getWorlds()[0]!!.persistentDataContainer.set(NamespacedKey(this, "ActualQuests"), PersistentDataType.LONG_ARRAY, it)
+            }.toMutableList()
+        }
+
     }
 
     val gson: Gson = GsonBuilder().setPrettyPrinting().registerTypeAdapter(Location::class.java, LocationAdapter()).create()

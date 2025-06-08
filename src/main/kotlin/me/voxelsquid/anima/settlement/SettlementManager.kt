@@ -108,8 +108,8 @@ class SettlementManager: Listener {
         val existingNames = if (settlements.isNotEmpty()) "Avoid these names: $settlements." else ""
         val biomeName = settlement.world.getBiome(settlement.data.center).toString().replace("_", " ").lowercase()
         val biome   = biomeName.split(":").getOrNull(1) ?: biomeName
-        val setting = plugin.controller.setting
-        val naming  = plugin.controller.naming
+        val setting = plugin.bifrost.setting
+        val naming  = plugin.bifrost.namingStyle
 
         plugin.bifrost.client.sendRequest( // Your task is to generate a creative {namingStyle} name for a settlement which are located in {settlementBiome} biome. Use {language} language. Place the result in the JSON with one key: 'townName'. {extraArguments}
             prompt = "Your task is to generate a creative name, taking into account setting ($setting) and naming style ($naming) for a settlement which are located in $biome biome and put it in JSON with specified keys: " +

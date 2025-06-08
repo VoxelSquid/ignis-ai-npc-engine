@@ -37,7 +37,6 @@ class DatabaseManager(plugin: JavaPlugin) {
             // Connect to database
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile.absolutePath}")
             createTables()
-            logger.info("Successfully connected to SQLite database: ${dbFile.absolutePath}")
         } catch (e: SQLException) {
             logger.severe("Failed to connect to SQLite database: ${e.message}")
         } catch (e: ClassNotFoundException) {

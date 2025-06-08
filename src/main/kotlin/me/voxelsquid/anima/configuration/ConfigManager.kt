@@ -12,8 +12,6 @@ class ConfigManager(private val dataFolder: File = plugin.dataFolder) {
     lateinit var professions: YamlConfiguration
     lateinit var prices:      YamlConfiguration
     lateinit var prompts:     YamlConfiguration
-    lateinit var races:       YamlConfiguration
-    lateinit var skins:       YamlConfiguration
 
     init {
         this.saveResources()
@@ -44,8 +42,6 @@ class ConfigManager(private val dataFolder: File = plugin.dataFolder) {
         professions = YamlConfiguration.loadConfiguration(File(dataFolder, "professions.yml"))
         prices      = YamlConfiguration.loadConfiguration(File(dataFolder, "prices.yml"))
         prompts     = YamlConfiguration.loadConfiguration(File(dataFolder, "prompts.yml"))
-        races       = YamlConfiguration.loadConfiguration(File(dataFolder, "races.yml"))
-        skins       = YamlConfiguration.loadConfiguration(File(dataFolder, "skins.yml"))
     }
 
     private companion object {
