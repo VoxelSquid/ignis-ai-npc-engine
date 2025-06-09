@@ -5,3 +5,4 @@ api-version: 1.18
 load: STARTUP
 
 depend: [Bifrost, packetevents]
+softdepend: [Geyser-Spigot]

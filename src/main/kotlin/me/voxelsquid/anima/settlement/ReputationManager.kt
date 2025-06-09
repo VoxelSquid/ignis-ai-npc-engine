@@ -18,7 +18,7 @@ class ReputationManager : Listener {
     @EventHandler
     private fun handlePlayerKillEntity(event: EntityDamageByEntityEvent) {
 
-        val victim  = event.entity as LivingEntity
+        val victim  = (event.entity as? LivingEntity) ?: return
         val damager = event.damager
 
         // Проверка фатальности урона.

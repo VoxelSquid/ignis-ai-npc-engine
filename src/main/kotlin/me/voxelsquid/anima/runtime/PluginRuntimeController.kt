@@ -4,6 +4,7 @@ import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.command.CommandController
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.DialogueFormat
+import me.voxelsquid.anima.utility.GeyserSupportProvider
 
 class PluginRuntimeController {
 
@@ -13,6 +14,10 @@ class PluginRuntimeController {
     val format        = ConfigurationAccessor(path = "core.default-dialogue-format", defaultValue = DialogueFormat.IMMERSIVE, comments = mutableListOf("The standard format of villagers' dialogs for every player on the server.", "IMMERSIVE: the message from the villager will be received in a cOoL dIaLoGuE wInDoW.", "CHAT: the message from the villager will be received via chat, classic.", "BOTH: well... there's no need to explain, I hope?..")).get()
 
     val personalityGenerationPeriod = ConfigurationAccessor(path = "core.generation.personality.period", defaultValue = 100L).get()
+    var geyserProvider: GeyserSupportProvider? = null
+        get() = if (ignisInstance.server.pluginManager.isPluginEnabled("Geyser-Spigot")) {
+            if (field == null) GeyserSupportProvider().also { field = it } else field
+        } else null
 
     init {
         this.checkBeforeStartup()

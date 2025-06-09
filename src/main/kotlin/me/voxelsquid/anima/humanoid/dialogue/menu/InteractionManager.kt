@@ -98,17 +98,23 @@ class InteractionManager: Listener {
                 return
             }
 
-            val dialogueSession = player.getActiveDialogueSession()
-            // Если у игрока есть активная диалоговая сессия, то
-            if (dialogueSession != null) {
-                if (dialogueSession.entity == villager) this.showDialogueMenu(player, villager)
-                return
-            }
-
             // Обработка состояния спящего жителя
             if (villager.pose == Pose.SLEEPING) {
                 val message = villager.getPersonalityData()?.sleepInterruptionPhrases?.random() ?: genericReactionMessages.sleepInterruptionPhrases.random()
                 villager.talk(player, message, followDuringDialogue = false)
+                return
+            }
+
+            // Geyser support
+            if (plugin.controller.geyserProvider?.checkGeyserPlayer(player) == true) {
+                plugin.controller.geyserProvider?.openInteractionMenu(player, villager)
+                return
+            }
+
+            val dialogueSession = player.getActiveDialogueSession()
+            // Если у игрока есть активная диалоговая сессия, то
+            if (dialogueSession != null) {
+                if (dialogueSession.entity == villager) this.showDialogueMenu(player, villager)
                 return
             }
 

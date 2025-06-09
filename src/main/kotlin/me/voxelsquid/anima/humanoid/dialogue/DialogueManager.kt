@@ -2,6 +2,8 @@ package me.voxelsquid.anima.humanoid.dialogue
 
 import me.voxelsquid.anima.Ignis.Companion.ignisInstance
 import me.voxelsquid.anima.configuration.ConfigurationAccessor
+import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager
+import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager.Companion
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.HumanoidController.Companion.plugin
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getVoicePitch
@@ -101,7 +103,13 @@ class DialogueManager {
         val dialogues: MutableMap<Pair<Player, Villager>, DialogueWindow> = mutableMapOf()
 
         fun Villager.talk(player: Player, text: String?, displaySize: Float = dialogueBoxSize, followDuringDialogue: Boolean = true, interruptPreviousDialogue: Boolean = false, onFinish: () -> Unit = {}) {
-            text?.let { dialogueManager.startDialogue(player to this, it, size = displaySize, follow = followDuringDialogue, interrupt = interruptPreviousDialogue, onFinish = onFinish) }
+            text?.let {
+                if (ignisInstance.controller.geyserProvider?.checkGeyserPlayer(player) == true) {
+                    dialogueManager.sendDialogueInChat(player, this, text)
+                    return
+                }
+                dialogueManager.startDialogue(player to this, it, size = displaySize, follow = followDuringDialogue, interrupt = interruptPreviousDialogue, onFinish = onFinish)
+            }
         }
 
         enum class DialogueFormat {
