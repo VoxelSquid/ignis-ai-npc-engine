@@ -260,6 +260,12 @@ class QuestManager : Listener {
 
         // Отправляем информацию о новом квесте игроку.
         player.sendFormattedMessage(plugin.configManager.language.getString("quest.accepted")!!.replace("{quest}", questData.questName))
+        TODO("слышь ты бля нахуй давай сука эту парашу в лангуаге емл")
+        player.sendFormattedMessage("NPC: §6${villager.customName}")
+        player.sendFormattedMessage("Task Description: §f${questData.extraShortTaskDescription}")
+        player.sendFormattedMessage("Target Entity: §e${questData.questItem.entityType}")
+        player.sendFormattedMessage("Drop Chance: §b${questData.questItem.dropChance}%")
+        player.sendFormattedMessage("Required Item: §6${XItemStack.deserialize(questData.questItem.item).type}")
 
         // Только один квест может быть активен.
         if (questTracker[player] == null) {
