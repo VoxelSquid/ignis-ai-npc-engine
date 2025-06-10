@@ -59,6 +59,7 @@ info-messages:
     ended: "Your conversation with §6{npcName} §7is over."
     cooldown: "Hey, not so fast! There should be a little time between actions."
     waiting-for-gift: "The next item you drop from your inventory will be gifted to §6{npcName}§7."
+    ai-overloaded: "§aAI is overloaded, response generation can take a bit of time..."
   quest-command:
     not-found: "You don't have a quest named §6{quest}§7."
     removed: "Quest §6{quest} §7successfully removed."

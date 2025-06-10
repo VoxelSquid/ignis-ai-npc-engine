@@ -44,7 +44,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
     var cancelled = false
         set(value) {
             if (value) {
-                player.sendFormattedMessage(conversationEndedMessage.replace("{npcName}", entity.customName ?: "NPC"))
+                player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.npc-conversation.ended")!!.replace("{npcName}", entity.customName ?: "NPC"))
                 HandlerList.unregisterAll(this)
                 activeDialogueSessions.remove(this)
                 instance.entityProvider.asHumanoid(entity as LivingEntity).talkingPlayer = null
@@ -55,13 +55,13 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
     var giftAwaiting = false
         set(value) {
             if (value) {
-                player.sendFormattedMessage(waitingForGiftMessage.replace("{npcName}", entity.customName ?: "NPC"))
+                player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.npc-conversation.waiting-for-gift")!!.replace("{npcName}", entity.customName ?: "NPC"))
             }
             field = value
         }
 
     init {
-        player.sendFormattedMessage(conversationStartedMessage.replace("{npcName}", entity.customName ?: "NPC"))
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.npc-conversation.started")!!.replace("{npcName}", entity.customName ?: "NPC"))
         plugin.server.pluginManager.registerEvents(this, plugin)
         activeDialogueSessions.add(this)
         plugin.server.scheduler.runTaskTimer(plugin, { task ->
@@ -103,7 +103,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
                 lastMessageTime = System.currentTimeMillis()
                 event.itemDrop.remove()
                 player.playSound(entity.eyeLocation, entity.getVoiceSound(), 1F, entity.getVoicePitch())
-            } else player.sendFormattedMessage(cooldownMessage)
+            } else player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.npc-conversation.cooldown")!!)
         }
     }
 
@@ -118,7 +118,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
                 dialogueHistory.add("${player.name}: \"${event.message}\" ->")
                 lastMessageTime = System.currentTimeMillis()
                 player.sendFormattedMessage(playerToNPCMessage.replace("{playerName}", player.name).replace("{message}", event.message))
-            } else player.sendFormattedMessage(cooldownMessage)
+            } else player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.npc-conversation.cooldown")!!)
         }
     }
 
@@ -182,7 +182,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             onSuccess = { response ->
                 this.handleChatResponse(response)
             }, onFailure = {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§aAI is overloaded, response generation can take a bit of time..."))
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(plugin.configManager.language.getString("info-messages.npc-conversation.ai-overloaded")!!))
             }
         )
 
@@ -239,7 +239,7 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
             onSuccess = { reaction ->
                 this.handleGiftReaction(player, villager, gift, reaction)
             }, onFailure = {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy("§aAI is overloaded, response generation can take a bit of time..."))
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacy(plugin.configManager.language.getString("info-messages.npc-conversation.ai-overloaded")!!))
             }
         )
 
@@ -351,10 +351,6 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
         private val plugin = ignisInstance
         private val npcResponseMessage = ConfigurationAccessor(path = "text-formatting.chat.npc-message", defaultValue = "&7{npcName}&6ᵃⁱ&7: &f{message}", comments = mutableListOf("NPC response during conversations. It is recommended to hint to the player that they are talking to the AI.")).get()
         private val playerToNPCMessage = ConfigurationAccessor(path = "text-formatting.chat.player-to-npc-message", defaultValue = "&7{playerName}&6ᵃⁱ&7: &f{message}", comments = mutableListOf("Message from a player during a dialogue session.")).get()
-        private val conversationStartedMessage = plugin.configManager.language.getString("info-messages.npc-conversation.started")!!
-        private val conversationEndedMessage   = plugin.configManager.language.getString("info-messages.npc-conversation.ended")!!
-        private val cooldownMessage            = plugin.configManager.language.getString("info-messages.npc-conversation.cooldown")!!
-        private val waitingForGiftMessage      = plugin.configManager.language.getString("info-messages.npc-conversation.waiting-for-gift")!!
 
         val activeDialogueSessions = mutableListOf<DialogueSession>()
         fun Player.getActiveDialogueSession() : DialogueSession? {
