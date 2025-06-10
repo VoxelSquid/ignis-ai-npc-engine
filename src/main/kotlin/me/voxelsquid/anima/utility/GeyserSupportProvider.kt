@@ -8,8 +8,6 @@ import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.sett
 import me.voxelsquid.anima.humanoid.HumanoidTradeHandler.Companion.openTradeMenu
 import me.voxelsquid.anima.humanoid.dialogue.DialogueSession
 import me.voxelsquid.anima.humanoid.dialogue.DialogueSession.Companion.getActiveDialogueSession
-import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager
-import me.voxelsquid.anima.humanoid.dialogue.menu.InteractionManager.Companion
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.Reputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.getPlayerReputationStatus
 import org.bukkit.entity.Player
@@ -145,7 +143,9 @@ class GeyserSupportProvider {
                     }
                 }
                 if (responseData.clickedButton().text() == plugin.configManager.language.getString("interaction-menu.talk-button")!!) {
-                    if (player.getActiveDialogueSession() == null) DialogueSession(player, villager)
+                    if (!plugin.isFree(player)) {
+                        if (player.getActiveDialogueSession() == null) DialogueSession(player, villager)
+                    }
                 }
             }
 
