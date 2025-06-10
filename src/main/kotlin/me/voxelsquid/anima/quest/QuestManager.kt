@@ -260,12 +260,11 @@ class QuestManager : Listener {
 
         // Отправляем информацию о новом квесте игроку.
         player.sendFormattedMessage(plugin.configManager.language.getString("quest.accepted")!!.replace("{quest}", questData.questName))
-        TODO("слышь ты бля нахуй давай сука эту парашу в лангуаге емл")
-        player.sendFormattedMessage("NPC: §6${villager.customName}")
-        player.sendFormattedMessage("Task Description: §f${questData.extraShortTaskDescription}")
-        player.sendFormattedMessage("Target Entity: §e${questData.questItem.entityType}")
-        player.sendFormattedMessage("Drop Chance: §b${questData.questItem.dropChance}%")
-        player.sendFormattedMessage("Required Item: §6${XItemStack.deserialize(questData.questItem.item).type}")
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.quest-giver")!!.replace("{npcName}", villager.customName!!))
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.task-description")!!.replace("{desc}", questData.extraShortTaskDescription))
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.target-entity")!!.replace("{entityType}", questData.targetEntityType))
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.drop-chance")!!.replace("{chance}", (questData.questItem.dropChance * 100).toString()))
+        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.required-item")!!.replace("{itemType}", XItemStack.deserialize(questData.questItem.item).type.toString()))
 
         // Только один квест может быть активен.
         if (questTracker[player] == null) {

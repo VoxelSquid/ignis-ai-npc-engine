@@ -48,6 +48,12 @@ command-message:
     deactivated: "§cVerbose mode deactivated."
 
 info-messages:
+  quest-chat-info:
+    quest-giver: "NPC: §6{npcName}"
+    task-description: "Task Description: §f{desc}"
+    target-entity: "Target Entity: §e{entityType}"
+    drop-chance: "Drop Chance: §b{chance}%"
+    required-item: "Required Item: §6{itemType}"
   npc-conversation:
     started: "You started a conversation with §6{npcName}§7. All chat messages will now be addressed to this NPC. Write something in the chat and wait for a reply. To exit the dialog mode, right-click on the NPC again."
     ended: "Your conversation with §6{npcName} §7is over."
