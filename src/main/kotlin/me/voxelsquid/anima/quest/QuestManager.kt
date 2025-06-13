@@ -266,7 +266,6 @@ class QuestManager : Listener {
             player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.target-entity")!!.replace("{entityType}", questData.targetEntityType))
             player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.drop-chance")!!.replace("{chance}", (questData.questItem.dropChance * 100).toString()))
         }
-        player.sendFormattedMessage(plugin.configManager.language.getString("info-messages.quest-chat-info.required-item")!!.replace("{itemType}", XItemStack.deserialize(questData.questItem.item).type.toString()))
 
         // Только один квест может быть активен.
         if (questTracker[player] == null) {

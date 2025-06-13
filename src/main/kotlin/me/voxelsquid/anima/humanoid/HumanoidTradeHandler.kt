@@ -124,6 +124,7 @@ class HumanoidTradeHandler : Listener {
             // Going through every produced item.
             itemsToTrade.forEach { item ->
 
+                // Trade a currency? Really?
                 if (item.type == race.normalCurrency.get())
                     return@forEach
 
@@ -131,6 +132,10 @@ class HumanoidTradeHandler : Listener {
                 if (recipes.find { recipe -> recipe.result.isSimilar(item) } != null) {
                     return@forEach
                 }
+
+                // We're trading just one item.
+                val total = item.amount
+                item.amount = 1
 
                 val trade = TradingSlot(Material.AIR, 0) to TradingSlot(Material.AIR, 0)
                 val price = (item.calculatePrice() * multiplier).toInt()
@@ -164,7 +169,7 @@ class HumanoidTradeHandler : Listener {
                 if (trade.first.amount == 0)
                     return@forEach
 
-                val recipe = MerchantRecipe(item, 1)
+                val recipe = MerchantRecipe(item, total)
                 recipe.addIngredient(trade.first.toItemStack())
 
                 if (trade.second.amount > 0)
