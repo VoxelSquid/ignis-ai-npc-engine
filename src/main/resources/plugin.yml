@@ -1,5 +1,5 @@
 name: "IgnisVillagers"
-version: '0.3.1d'
+version: '0.3.2a'
 main: me.voxelsquid.anima.Ignis
 api-version: 1.18
 load: STARTUP

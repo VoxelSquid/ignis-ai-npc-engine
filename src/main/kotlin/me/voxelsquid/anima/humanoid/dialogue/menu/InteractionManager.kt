@@ -9,18 +9,20 @@ import me.voxelsquid.anima.humanoid.dialogue.DialogueManager.Companion.talk
 import me.voxelsquid.anima.humanoid.dialogue.DialogueSession.Companion.getActiveDialogueSession
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.quests
 import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.settlement
-import me.voxelsquid.anima.humanoid.HumanoidManager.HumanoidEntityExtension.subInventory
 import me.voxelsquid.anima.humanoid.HumanoidTradeHandler.Companion.openTradeMenu
 import me.voxelsquid.anima.humanoid.dialogue.DialogueManager
 import me.voxelsquid.anima.humanoid.dialogue.DialogueSession
 import me.voxelsquid.anima.quest.base.Quest
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.Reputation
 import me.voxelsquid.anima.settlement.ReputationManager.Companion.getPlayerReputationStatus
+import me.voxelsquid.psyche.Humanoid
+import me.voxelsquid.psyche.HumanoidController.Companion.asHumanoid
 import me.voxelsquid.psyche.HumanoidController.Companion.instance
 import me.voxelsquid.psyche.data.Gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.gender
 import me.voxelsquid.psyche.personality.PersonalityManager.Companion.getPersonalityData
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.data.type.Bed
 import org.bukkit.entity.*
@@ -31,11 +33,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.*
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import kotlin.random.Random
 
 class InteractionManager: Listener {
 
-    private val genericReactionMessages by lazy { plugin.humanoidManager.movementController.personalityManager.genericReactionMessages }
+    private val genericReactionMessages by lazy { plugin.humanoidManager.humanoidController.personalityManager.genericReactionMessages }
     private val buttonTextColor = ConfigurationAccessor(path = "text-formatting.menu.button.color", defaultValue = "&f", comments = mutableListOf("Color of interactive menu buttons, HEX values.")).get()
 
     init {
@@ -326,10 +330,12 @@ class InteractionManager: Listener {
     }
 
     @EventHandler
-    private fun onEntityDamage(event: EntityDamageEvent) {
+    private fun onVillagerDamage(event: EntityDamageEvent) {
         (event.entity as? Villager)?.let { entity ->
 
             val world = entity.world
+
+            entity.asHumanoid()?.equip(EquipmentSlot.HAND, ItemStack(Material.NETHERITE_AXE))
 
             // Sound handling
             if (instance.configuration.humanoidVillagers && !dialogues.contains(event.entity.lastDamageCause?.entity to entity)) {

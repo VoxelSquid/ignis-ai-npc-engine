@@ -41,7 +41,8 @@ import kotlin.random.Random
 
 class HumanoidManager: Listener {
 
-    val movementController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
+    val humanoidController: me.voxelsquid.psyche.HumanoidController = HumanoidController(plugin, plugin.allowedWorlds, Configuration())
+
     val dialogueManager    = DialogueManager()
     val interactionManager = InteractionManager()
     val settlementManager  = SettlementManager()

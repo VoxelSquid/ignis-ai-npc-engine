@@ -4,7 +4,7 @@
   <groupId>me.voxelsquid</groupId>
   <artifactId>ignis</artifactId>
   <name>anima</name>
-  <version>0.3.1d</version>
+  <version>0.3.2a</version>
   <build>
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
     <defaultGoal>clean package</defaultGoal>
