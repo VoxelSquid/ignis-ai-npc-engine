@@ -368,8 +368,13 @@ class InteractionManager: Listener {
                 }
 
                 // Lethal damage check
-                if (event.finalDamage >= entity.health)
+                if (event.finalDamage >= entity.health) {
+                    if (entity.equipment?.getItem(EquipmentSlot.OFF_HAND)?.type == Material.TOTEM_OF_UNDYING) {
+                        val message = entity.getPersonalityData()?.totemOfUndyingResurrectionPhrases?.random() ?: genericReactionMessages.totemOfUndyingResurrectionPhrases.random()
+                        entity.talk(player, message, displaySize = 0.55F, followDuringDialogue = false, interruptPreviousDialogue = true)
+                    }
                     return
+                }
 
                 // Hurt message
                 val message = entity.getPersonalityData()?.damagePhrases?.random() ?: genericReactionMessages.damagePhrases.random()
