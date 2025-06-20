@@ -55,7 +55,7 @@ class HumanoidManager: Listener {
     private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()
     private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
     private val workIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.work-tick-interval", defaultValue = 2400L, comments = mutableListOf("Each iteration ALL villagers in the entire world will produce items to trade.")).get()
-    private val equipCheckTicks    = ConfigurationAccessor(path = "gameplay.core.equip-tick-interval", defaultValue = 1200L, comments = mutableListOf("Villagers can equip things. How ofter they will look for anything equip-able in their inventories?")).get()
+    private val equipCheckTicks    = ConfigurationAccessor(path = "gameplay.core.equip-tick-interval", defaultValue = 600L, comments = mutableListOf("Villagers can equip things. How ofter they will look for anything equip-able in their inventories?")).get()
 
     init {
         plugin.server.pluginManager.registerEvents(this, plugin)
