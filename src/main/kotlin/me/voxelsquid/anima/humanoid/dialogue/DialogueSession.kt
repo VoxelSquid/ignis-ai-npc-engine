@@ -281,6 +281,8 @@ class DialogueSession(val player: Player, val entity: Villager) : Listener {
                         readyToSend = true
                         // Modifying reputation after talking. We should add check for it.
                         entity.settlement?.addReputation(player, impression.score)
+                        // Force equipment update.
+                        plugin.humanoidManager.equipmentManager.tick()
                     }
                 }, delay)
                 delay += 60L

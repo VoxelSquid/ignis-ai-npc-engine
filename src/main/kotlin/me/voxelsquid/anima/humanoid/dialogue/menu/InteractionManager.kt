@@ -335,8 +335,6 @@ class InteractionManager: Listener {
 
             val world = entity.world
 
-            entity.asHumanoid()?.equip(EquipmentSlot.HAND, ItemStack(Material.NETHERITE_AXE))
-
             // Sound handling
             if (instance.configuration.humanoidVillagers && !dialogues.contains(event.entity.lastDamageCause?.entity to entity)) {
 

@@ -22,6 +22,7 @@ import me.voxelsquid.psyche.race.RaceManager
 import me.voxelsquid.psyche.race.RaceManager.Companion.race
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.Material.*
 import org.bukkit.Sound
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -31,6 +32,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.CreatureSpawnEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
+import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SuspiciousStewMeta
@@ -48,10 +50,12 @@ class HumanoidManager: Listener {
     val settlementManager  = SettlementManager()
     val tradeHandler       = HumanoidTradeHandler()
     val professionManager  = ProfessionManager()
+    val equipmentManager   = EquipmentManager()
 
     private val questIntervalTicks = ConfigurationAccessor(path = "core.generation.quest.period", defaultValue = 200L, comments = mutableListOf("Each iteration only ONE villager in the entire world will be selected to generate a new quest.")).get()
     private val foodIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.food-tick-interval", defaultValue = 4800L, comments = mutableListOf("Each iteration ALL villagers in the entire world will eat.")).get()
     private val workIntervalTicks  = ConfigurationAccessor(path = "gameplay.core.work-tick-interval", defaultValue = 2400L, comments = mutableListOf("Each iteration ALL villagers in the entire world will produce items to trade.")).get()
+    private val equipCheckTicks    = ConfigurationAccessor(path = "gameplay.core.equip-tick-interval", defaultValue = 1200L, comments = mutableListOf("Villagers can equip things. How ofter they will look for anything equip-able in their inventories?")).get()
 
     init {
         plugin.server.pluginManager.registerEvents(this, plugin)
@@ -71,21 +75,24 @@ class HumanoidManager: Listener {
                 }
             }
         }, 0, foodIntervalTicks)
+        plugin.server.scheduler.runTaskTimer(plugin, { _ ->
+            equipmentManager.tick()
+        }, 0, equipCheckTicks)
     }
 
     fun Villager.eat() = subInventory.filterNotNull().find { it.type.isEdible }?.let { food ->
         val sound = when (food.type) {
-            Material.HONEY_BOTTLE -> Sound.ITEM_HONEY_BOTTLE_DRINK
-            Material.MUSHROOM_STEW, Material.RABBIT_STEW, Material.SUSPICIOUS_STEW -> Sound.ENTITY_GENERIC_DRINK
+            HONEY_BOTTLE -> Sound.ITEM_HONEY_BOTTLE_DRINK
+            MUSHROOM_STEW, RABBIT_STEW, SUSPICIOUS_STEW -> Sound.ENTITY_GENERIC_DRINK
             else -> Sound.ENTITY_GENERIC_EAT
         }
         instance.entityProvider.asHumanoid(this as LivingEntity).consume(world, food, sound, 3, location, period = 7) {
             takeItemFromQuillInventory(food, 1)
             if (food.type.toString().contains("STEW")) {
-                addItemToQuillInventory(ItemStack(Material.BOWL))
+                addItemToQuillInventory(ItemStack(BOWL))
                 (food.itemMeta as? SuspiciousStewMeta)?.customEffects?.forEach { addPotionEffect(it) }
             }
-            if (food.type == Material.HONEY_BOTTLE) addItemToQuillInventory(ItemStack(Material.GLASS_BOTTLE))
+            if (food.type == HONEY_BOTTLE) addItemToQuillInventory(ItemStack(GLASS_BOTTLE))
             world.playSound(location, getVoiceSound(), 1F, getVoicePitch())
             world.playSound(location, Sound.ENTITY_PLAYER_BURP, 1F, 1F)
             hunger += 7.5
